@@ -1,0 +1,29 @@
+<app-menu *ngIf="website" [website]='website'></app-menu>
+<div class="row animated fadeIn">
+    <div class="col-12">
+        <div *ngIf="onsiteLoaded" cdkDropList class="drag-list" (cdkDropListDropped)="dropTask( $event)">
+            <div class="task" *ngFor="let task of onsiteTasks" cdkDrag>
+                <div class="container-fluid d-flex px-0">
+                    <div class="col pl-0 padding-task">
+                        <div class="row task-container no-gutters">
+                            <div class="col-8">
+                                <i class="fas fa-bars text-muted mr-2"></i>
+                                <span class="badge badge-pill bg-other text-white mr-2 badge-list">Other</span>
+                                <span class="mr-2">{{ task.name }}</span>
+                            </div>
+                            <div class="col-4">
+                                <span class="badge badge-pill badge-gray mr-2"><i class="fas fa-calendar"></i> {{ task.programed }}</span>
+                                <span class="badge badge-pill badge-gray mr-2" *ngIf="task.status"><i class="fas fa-check"></i> {{ task.date | date }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-fixed-width-item">
+                        <div class="task-checkbox" [ngClass]="{'checked': task.status}">
+                            <i class="fas" [ngClass]="{'text-white fa-check': task.status, 'text-invalid fa-times': !task.status}"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

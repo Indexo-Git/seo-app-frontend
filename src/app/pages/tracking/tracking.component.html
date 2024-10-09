@@ -1,0 +1,105 @@
+<app-menu *ngIf="currentWebsite" [website]='currentWebsite' subMenuActive='tracking'></app-menu>
+<div class="row fadeIn">
+    <div class=col-lg-12>
+        <div class="float-right">
+            <ul class="list-inline font-12 dl m-r-15 m-b-0">
+                <li class="list-inline-item pointer" [ngClass]="{'font-weight-bold text-info': selectedYear === 2019, 'text-muted' : selectedYear !== 2019}" (click)="makeItems(2019)">2019</li>
+                <li class="list-inline-item pointer" [ngClass]="{'font-weight-bold text-info': selectedYear === 2020, 'text-muted' : selectedYear !== 2020}" (click)="makeItems(2020)">2020</li>
+                <li class="list-inline-item pointer" [ngClass]="{'font-weight-bold text-info': selectedYear === 2021, 'text-muted' : selectedYear !== 2021}" (click)="makeItems(2021)">2021</li>
+                <li class="list-inline-item pointer" [ngClass]="{'font-weight-bold text-info': selectedYear === 2022, 'text-muted' : selectedYear !== 2022}" (click)="makeItems(2022)">2022</li>
+                <li class="list-inline-item pointer" [ngClass]="{'font-weight-bold text-info': selectedYear === 2023, 'text-muted' : selectedYear !== 2023}" (click)="makeItems(2023)">2023</li>
+                <li class="list-inline-item pointer" [ngClass]="{'font-weight-bold text-info': selectedYear === 2024, 'text-muted' : selectedYear !== 2024}" (click)="makeItems(2024)">2024</li>
+            </ul>
+        </div>
+        <h4 class="mb-4">
+            Statistical monitoring of Tasks from SEO Strategies
+            <span class="label label-rounded bg-content text-white mr-1">Content</span>
+            <span class="label label-rounded bg-on-page text-white mr-1">On page</span>
+            <span class="label label-rounded bg-technical text-white mr-1">Technical</span>
+            <span class="label label-rounded bg-netlinking text-white mr-1">Backlink</span>
+            <span class="label label-rounded bg-other text-white mr-1">Other</span>
+        </h4>
+    </div>
+</div>
+<div class="row fadeIn">
+    <div class="col-md-4 col-lg-2" *ngFor="let item of items">
+        <div class="card rounded">
+            <div class="card-body track-min-h">
+                <div class="card-title text-center">
+                    <span>{{ item.month }}</span>
+                </div>
+                <small class="text-task float-right"><b>{{ item.totalDone }}/{{ item.total }}</b></small>
+                <small><b>{{ item.percent }} %</b></small>
+                <div class="progress rounded">
+                    <div class="progress-bar bg-upleadr-blue" role="progressbar" [style.width]="item.percent + '%'" role="progressbar"> <span class="sr-only">{{ item.percent }} %</span></div>
+                </div>
+                <div class="text-center mt-1">
+                    <span *ngIf="item.content.length > 0" class="label label-rounded bg-content text-white mr-1">{{ item.contentDone }}/{{ item.content.length }}</span>
+                    <span *ngIf="item.onPage.length > 0" class="label label-rounded bg-on-page text-white mr-1">{{ item.onPageDone }}/{{ item.onPage.length }}</span>
+                    <span *ngIf="item.technical.length > 0" class="label label-rounded bg-technical text-white mr-1">{{ item.technicalDone }}/{{ item.technical.length }}</span>
+                    <span *ngIf="item.offsite.length > 0" class="label label-rounded bg-netlinking text-white mr-1">{{ item.offsiteDone }}/{{ item.offsite.length }}</span>
+                    <span *ngIf="item.onsite.length > 0" class="label label-rounded bg-other text-white">{{ item.onsiteDone }}/{{ item.onsite.length }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row fadeIn mb-3">
+    <div class=col-lg-12>
+        <h4 class="mb-3">Validated tasks / SERP Tracking</h4>
+    </div>
+    <div class="col-lg-12">
+        <div class="row">
+            <div class="col-md-3 col-lg-3">
+                <input id="date-one" type="date" class="form-control" [value]="dateBarOne | date: 'yyyy-MM-dd'">
+            </div>
+            <div class="col-md-3 col-lg-3">
+                <input id="date-two" type="date" class="form-control" [value]="this.dateBarTwo | date: 'yyyy-MM-dd'">
+            </div>
+            <div class="col-md-6 col-lg-6">
+                <div class="button-group">
+                    <button type="button" class="btn waves-effect waves-light btn-info" (click)="datesChange()">Filter</button>
+                    <button type="button" class="btn waves-effect waves-light float-right text-white" [ngClass]="{'btn-info': daily, 'bg-secondary' : !daily}" (click)="datesChange('d')">Daily</button>
+                    <button type="button" class="btn waves-effect waves-light float-right text-white" [ngClass]="{'btn-info': weekly, 'bg-secondary' : !weekly}" (click)="datesChange('w')">Weekly</button>
+                    <button type="button" class="btn waves-effect waves-light  float-right text-white" [ngClass]="{'btn-info': monthly, 'bg-secondary' : !monthly}" (click)="datesChange('m')">Monthly</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row fadeIn">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body analytics-info">
+                <div id="basic-line" style="height:400px;"></div>
+                <div id="stacked-column" style="height:400px; margin-top: -15px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row fadeIn">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Keyword</th>
+                                <th *ngFor="let date of tableDates">{{ date }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let position of tablePositions">
+                                <td scope="row">{{ position.name }} </td>
+                                <td *ngFor="let date of position.data; let i = index" [ngClass]="{'bg-up': position.data[i - 1] !== null && date != null && date < position.data[i - 1], 'bg-down': position.data[i - 1] !== null && date != null && date > position.data[i - 1]}">{{ date }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

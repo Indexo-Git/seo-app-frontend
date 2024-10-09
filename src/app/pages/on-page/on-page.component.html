@@ -1,0 +1,258 @@
+<app-menu *ngIf="website" [website]='website' [updateOnPage]="updateMenu.asObservable()"></app-menu>
+<div class="row animated fadeIn" *ngIf="loading">
+    <div class="col-12 text-center">
+        <i class="fas fa-spinner fa-2x fa-spin"></i>
+    </div>
+</div>
+<div class="row animated fadeIn" *ngIf="!loading">
+    <div class="col-12">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active btn-outline-purple" data-toggle="tab" href="#sitemap" role="tab">
+                    <span class="hidden-xs-down"> On-Page Optimizations</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link btn-outline-purple" data-toggle="tab" href="#semantic" role="tab">
+                    <span class="hidden-xs-down"> Settings</span>
+                </a>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content tabcontent-border">
+            <div class="tab-pane active  p-20" id="sitemap" role="tabpanel">
+                <div class="p-20">
+                    <div class="row mt-4">
+                        <div class="col-lg-12">
+                            <div *ngIf="pages && pages.length > 0" cdkDropList class="drag-list animated fadeIn" (cdkDropListDropped)="dropPage(pages, $event)">
+                                <div class="task pages" *ngFor="let page of pages" cdkDrag>
+                                    <div class="container-fluid d-flex px-0">
+                                        <div class="col pl-0 padding-task">
+                                            <div class="row task-container no-gutters">
+                                                <div class="col-8">
+                                                    <i class="fas fa-bars text-muted mr-2"></i>
+                                                    <span class="badge badge-pill text-white bg-on-page mr-2 badge-list">On-page</span>
+                                                    <span class="mr-1">{{ page.page.name }}</span>
+                                                    <small class="mr-1" *ngIf="page.page.name.includes('https://') || page.page.name.includes('https://')"><a href="{{ page.page.name }}" target="_blank"><i class="fas fa-external-link-square-alt"></i></a></small>
+                                                    <span class="pointer label mr-2" [ngClass]="{'label-gray': page.page.keywords === null || page.page.keywords === '', 'label-info' : page.page.keywords !== null && page.page.keywords !== '' , 'pointer' : page.page.keywords !== null && page.page.keywords !== ''} "
+                                                        data-container="body" title="Keywords" data-toggle="popover" data-html="true" data-placement="top" [attr.data-content]="page.page.keywords | line">KW</span>
+                                                </div>
+                                                <div class="col-4">
+                                                    <span class="badge badge-pill badge-gray mr-2 neg-margin-left" *ngIf="page.page.programed">
+                                                        <i class="fas fa-calendar"></i> {{ page.page.programed }}
+                                                    </span>
+                                                    <span class="badge badge-pill badge-gray mr-2" *ngIf="page.page.optimized" [ngClass]="{ 'neg-margin-left' : !page.page.programed }">
+                                                        <i class="fas fa-check"></i> {{ page.page.dateOptimized | date }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex-fixed-width-item" data-toggle="modal" data-target="#tasks-modal" (click)="setPageToUpdate( page.page )">
+                                            <div class="task-checkbox pointer" [ngClass]="{'checked': page.page.optimized}">
+                                                <i class="fas" [ngClass]="{'text-white fa-check': page.page.optimized, 'text-invalid fa-times': !page.page.optimized}"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div *ngIf="page.daughters.length > 0" class="drag-list drag-list-child" cdkDropList (cdkDropListDropped)="dropPage(page.daughters, $event)">
+                                        <div class="task pages" *ngFor="let daughter of page.daughters" cdkDrag>
+                                            <div class="container-fluid d-flex px-0">
+                                                <div class="col pl-0 padding-task">
+                                                    <div class="row task-container no-gutters">
+                                                        <div class="col-8">
+                                                            <i class="fas fa-bars text-muted mr-3"></i>
+                                                            <span class="badge badge-pill text-white bg-on-page mr-2 badge-list">On-page</span>
+                                                            <span class="mr-1">{{ daughter.name }}</span>
+                                                            <small class="mr-1" *ngIf="daughter.name.includes('https://') || daughter.name.includes('https://')"><a href="{{ daughter.name }}" target="_blank"><i class="fas fa-external-link-square-alt"></i></a></small>
+                                                            <span class="pointer label mr-2" [ngClass]="{'label-gray': daughter.keywords === null || daughter.keywords === '', 'label-info' : daughter.keywords !== null && daughter.keywords !== '' , 'pointer' : daughter.keywords !== null && daughter.keywords !== ''} "
+                                                                data-container="body" title="Keywords" data-toggle="popover" data-html="true" data-placement="top" [attr.data-content]="daughter.keywords | line">KW</span>
+                                                        </div>
+                                                        <div class="col-4">
+                                                            <span class="badge badge-pill badge-gray mr-2 neg-margin-left" *ngIf="daughter.programed">
+                                                                <i class="fas fa-calendar"></i> {{ daughter.programed }}
+                                                            </span>
+                                                            <span class="badge badge-pill badge-gray mr-2" *ngIf="daughter.optimized" [ngClass]="{ 'big-neg-margin-left' : !daughter.programed }">
+                                                                <i class="fas fa-check"></i> {{ daughter.dateOptimized | date }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-fixed-width-item" data-toggle="modal" data-target="#tasks-modal" (click)="setPageToUpdate( daughter )">
+                                                    <div class="task-checkbox pointer" [ngClass]="{'checked': daughter.optimized}">
+                                                        <i class="fas" [ngClass]="{'text-white fa-check': daughter.optimized, 'text-invalid fa-times': !daughter.optimized}"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane p-20" id="semantic" role="tabpanel">
+                <div class="row p-20">
+                    <div class="col">
+                        <button type="button" class="btn btn-info btn-circle btn-lg float-right" data-toggle="modal" data-target="#bulk-semantic-modal"><i class="fa fa-upload"></i> </button>
+                    </div>
+                </div>
+                <div>
+                    <form [formGroup]="semanticForm" (ngSubmit)="newSemantic()">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">Name</label>
+                            <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': semanticForm.controls['name'].touched && !semanticForm.get( 'name').valid , 'is-valid': semanticForm.controls['name'].touched && semanticForm.get( 'name').valid } ">
+                            <ng-container *ngIf="semanticForm.controls['name'].touched">
+                                <div class="valid-feedback animated fadeIn" *ngIf="semanticForm.get('name').valid">
+                                    <span>Looks good</span>
+                                </div>
+                                <div class="invalid-feedback animated fadeIn" *ngIf="!semanticForm.get('name').valid">
+                                    <span *ngIf="semanticForm.controls['name'].errors?.required">This field is required</span>
+                                    <span *ngIf="semanticForm.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="submit" [disabled]="semanticForm.touched && !semanticForm.valid">Save changes</button>
+                        </div>
+                    </form>
+
+                    <div *ngIf="semanticTasks" cdkDropList class="drag-list" (cdkDropListDropped)="dropSemanticTask( $event)">
+                        <div class="task pages" *ngFor="let task of semanticTasks" cdkDrag>
+                            <div class="container-fluid d-flex px-0">
+                                <div class="col pl-0">
+                                    <div class="row task-container no-gutters">
+                                        <div class="col">
+                                            <i class="fas fa-bars text-muted mr-3"></i>
+                                            <span class="mr-1">{{ task.name }}</span>
+                                            <div class="float-right">
+                                                <i class="fas fa-edit mr-2 pointer text-invalid" (click)="getSemantic(task)" data-toggle="modal" data-target="#edit-semantic-modal"></i>
+                                                <i class="fas fa-times mr-3 pointer text-invalid" [swal]="{ title: 'Are you sure?', text: 'You will delete this semantic task and all the relations with this website pages', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteSemantic(task)"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal -->
+<div id="edit-semantic-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form [formGroup]="updateSemanticForm" (ngSubmit)="updateSemantic()">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit semantic task</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="recipient-name" class="control-label">Name</label>
+                                <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': updateSemanticForm.controls['name'].touched && !updateSemanticForm.get( 'name').valid , 'is-valid': updateSemanticForm.controls['name'].touched && updateSemanticForm.get( 'name').valid } ">
+                                <ng-container *ngIf="updateSemanticForm.controls['name'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="updateSemanticForm.get('name').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!updateSemanticForm.get('name').valid">
+                                        <span *ngIf="updateSemanticForm.controls['name'].errors?.required">This field is required</span>
+                                        <span *ngIf="updateSemanticForm.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="submit" [disabled]="updateSemanticForm.touched && !updateSemanticForm.valid">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="bulk-semantic-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Bulk semantic tasks</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="bulk-semantic" class="control-label">Content</label>
+                            <textarea id="bulk-semantic" class="form-control" rows="20"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="button" (click)="bulkSemantic()">Bulk</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="tasks-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content todo-list">
+            <div class="modal-header">
+                <h4 class="modal-title" *ngIf="selectedPage">On page tasks from : {{ selectedPage.name }} </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="task">
+                            <div class="container-fluid d-flex px-0">
+                                <div class="col pl-0">
+                                    <div class="row task-container no-gutters">
+                                        <div class="col">
+                                            <span>Select/unselect all</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item">
+                                    <div class="task-checkbox pointer" [ngClass]="{'checked': allSemanticDone}" (click)="updateAll()">
+                                        <i class="fas fa-check text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="task" *ngFor="let task of pageTasks">
+                            <div class="container-fluid d-flex px-0">
+                                <div class="col pl-0">
+                                    <div class="row task-container no-gutters">
+                                        <div class="col">
+                                            <span>{{ task.task.name }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item">
+                                    <div class="task-checkbox pointer" [ngClass]="{'checked': task.status}" (click)="statusSemanticTask( task )">
+                                        <i class="fas fa-check text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

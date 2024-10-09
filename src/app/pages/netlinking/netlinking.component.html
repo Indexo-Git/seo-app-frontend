@@ -1,0 +1,85 @@
+<app-menu *ngIf="website" [website]='website'></app-menu>
+<div class="row animated fadeIn">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Received backlinks <small *ngIf="totalPrice">Total cost: {{ totalPrice }}</small></h4>
+                <div class="row" *ngIf="loadingSenders">
+                    <div class="col-12 text-center">
+                        <i class="fas fa-spinner fa-2x fa-spin"></i>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="senders-table" class="table interlinking">
+                        <thead>
+                            <tr>
+                                <th>Domain</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Anchor</th>
+                                <th>Price</th>
+                                <th>Validated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let backLink of senders">
+                                <td>{{ backLink.task.url }}</td>
+                                <td>
+                                    <span *ngIf="backLink.sender">{{ backLink.sender.category.name }}</span>
+                                </td>
+                                <td>
+                                    <span *ngIf="backLink.sender">{{ backLink.sender.type.name }}</span>
+                                </td>
+                                <td>{{ backLink.task.anchor }}</td>
+                                <td>{{ backLink.task.price }}</td>
+                                <td>
+                                    <span *ngIf="backLink.task.date">{{ backLink.task.date | date }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row animated fadeIn">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Sended backlinks</h4>
+                <div class="row" *ngIf="loadingReceivers">
+                    <div class="col-12 text-center">
+                        <i class="fas fa-spinner fa-2x fa-spin"></i>
+                    </div>
+                </div>
+                <div class="table-responsive" *ngIf="!loadingReceivers">
+                    <table id="receivers-table" class="table interlinking">
+                        <thead>
+                            <tr>
+                                <th>Domain</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Anchor</th>
+                                <th>Price</th>
+                                <th>Validated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let backLink of receivers">
+                                <td>{{ backLink.task.url }}</td>
+                                <td>{{ backLink.receiver.category.name }}</td>
+                                <td>{{ backLink.receiver.type.name }}</td>
+                                <td>{{ backLink.task.anchor }}</td>
+                                <td>{{ backLink.task.price }}</td>
+                                <td>
+                                    <span *ngIf="backLink.task.date">{{ backLink.task.date | date }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

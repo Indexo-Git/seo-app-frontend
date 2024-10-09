@@ -1,0 +1,122 @@
+<app-menu *ngIf="website" [website]='website' [updateTechnical]="updateMenu.asObservable()"></app-menu>
+<div class="row animated fadeIn" *ngIf="loading">
+    <div class="col-12 text-center">
+        <i class="fas fa-spinner fa-2x fa-spin"></i>
+    </div>
+</div>
+<div class="row animated fadeIn" *ngIf="!loading">
+    <div class="col-12">
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-info btn-circle btn-lg float-right" data-toggle="modal" data-target="#bulk-technical-modal"><i class="fa fa-upload"></i> </button>
+            </div>
+        </div>
+        <div>
+            <form [formGroup]="technicalForm" (ngSubmit)="newTechnical()">
+                <div class="form-group">
+                    <label for="recipient-name" class="control-label">Name</label>
+                    <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': technicalForm.controls['name'].touched && !technicalForm.get( 'name').valid , 'is-valid': technicalForm.controls['name'].touched && technicalForm.get( 'name').valid } ">
+                    <ng-container *ngIf="technicalForm.controls['name'].touched">
+                        <div class="valid-feedback animated fadeIn" *ngIf="technicalForm.get('name').valid">
+                            <span>Looks good</span>
+                        </div>
+                        <div class="invalid-feedback animated fadeIn" *ngIf="!technicalForm.get('name').valid">
+                            <span *ngIf="technicalForm.controls['name'].errors?.required">This field is required</span>
+                            <span *ngIf="technicalForm.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                        </div>
+                    </ng-container>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="submit" [disabled]="technicalForm.touched && !technicalForm.valid">Save changes</button>
+                </div>
+            </form>
+
+            <div *ngIf="technicalTasks" cdkDropList class="drag-list" (cdkDropListDropped)="dropTechnicalTask( $event)">
+                <div class="task" *ngFor="let task of technicalTasks" cdkDrag>
+                    <div class="container-fluid d-flex px-0">
+                        <div class="col pl-0 padding-task">
+                            <div class="row task-container no-gutters">
+                                <div class="col-8">
+                                    <i class="fas fa-bars text-muted mr-2"></i>
+                                    <span class="badge badge-pill text-white bg-technical mr-2 badge-list mr-2">Technical</span> {{ task.name }}
+                                    <small class="ti-pencil mr-1 pointer text-invalid" (click)="getTechnical(task)" data-toggle="modal" data-target="#edit-technical-modal"></small>
+                                    <small class="ti-close mr-2 pointer text-invalid" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this technical task', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteTechnical(task._id)"></small>
+                                </div>
+                                <div class="col-4">
+                                    <span class="badge badge-pill badge-gray" *ngIf="task.status"><i class="fas fa-check"></i> {{ task.date | date }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-fixed-width-item" (click)="statusTechnical( task )">
+                            <div class="task-checkbox pointer" [ngClass]="{'checked': task.status}">
+                                <i class="fas" [ngClass]="{'text-white fa-check': task.status, 'text-invalid fa-times': !task.status}"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal -->
+<div id="edit-technical-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form [formGroup]="updateTechnicalForm" (ngSubmit)="updateTechnical()">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit semantic task</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="recipient-name" class="control-label">Name</label>
+                                <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': updateTechnicalForm.controls['name'].touched && !updateTechnicalForm.get( 'name').valid , 'is-valid': updateTechnicalForm.controls['name'].touched && updateTechnicalForm.get( 'name').valid } ">
+                                <ng-container *ngIf="updateTechnicalForm.controls['name'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="updateTechnicalForm.get('name').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!updateTechnicalForm.get('name').valid">
+                                        <span *ngIf="updateTechnicalForm.controls['name'].errors?.required">This field is required</span>
+                                        <span *ngIf="updateTechnicalForm.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="submit" [disabled]="updateTechnicalForm.touched && !updateTechnicalForm.valid">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="bulk-technical-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Bulk technical tasks</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="bulk-technical" class="control-label">Content</label>
+                            <textarea id="bulk-technical" class="form-control" rows="20"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="button" (click)="bulkTechnical()">Bulk</button>
+            </div>
+        </div>
+    </div>
+</div>

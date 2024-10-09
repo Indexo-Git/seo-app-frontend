@@ -1,0 +1,12 @@
+<div class="card rounded card-progress {{ class }}">
+    <div class="card-body">
+        <div class="card-title">
+            <span [ngClass]="{ 'text-white' : whiteTitle}">{{ title }}</span>
+        </div>
+        <small class="text-task float-right"><b>{{ done }}/{{ total }}</b></small>
+        <small><b>{{ percent }} %</b></small>
+        <div class="progress rounded">
+            <div class="progress-bar" [ngClass]="{ 'bg-upleadr-blue' : !darkProgress, 'bg-dark' : darkProgress }" role="progressbar" [style.width]="percent + '%'" role="progressbar"><span class="sr-only">{{ percent }} %</span></div>
+        </div>
+    </div>
+</div>

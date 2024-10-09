@@ -1,0 +1,178 @@
+<button id="network-button" type="button" class="btn btn-circle btn-xl bg-upleadr-blue" data-toggle="modal" data-target="#new-network-modal"><i class="fa fa-plus"></i> </button>
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive" *ngIf="!loadingNetworks">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Network</th>
+                                <th scope="col" class="w-px-25"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let network of networks">
+                                <th scope="row">{{ network.name }}</th>
+                                <td class="text-right">
+                                    <div *ngIf="_userService.user._id === network.creator">
+                                        <button type="button" class="btn btn-outline-purple mr-3 btn-sm" data-toggle="modal" data-target="#websites-modal" (click)="getWebsites(network._id)">
+                                            <i class="mdi mdi-web"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success mr-3 btn-sm" data-toggle="modal" data-target="#share-modal" (click)="getUsers(network._id)">
+                                            <i class="mdi mdi-share-variant"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info mr-3 btn-sm" data-toggle="modal" data-target="#update-modal" (click)="getNetwork(network)">
+                                            <i class="mdi mdi-lead-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" [swal]="{ title: 'Are you sure?', text: 'This network won\'t be available anymore', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteNetwork(network)">
+                                            <i class="mdi mdi-eraser"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="share-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form [formGroup]="formShare" (ngSubmit)="share()">
+                <div class="modal-header">
+                    <h4 class="modal-title">Share network</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="email" class="control-label">Client name</label>
+                        <div class="row">
+                            <div class="col-9">
+                                <input id="email" type="text" class="form-control" placeholder="Email" autocomplete="off" formControlName="email" [ngClass]="{ 'is-invalid': formShare.controls['email'].touched && !formShare.get( 'email').valid , 'is-valid': formShare.controls['email'].touched && formShare.get( 'email').valid } "
+                                    autofocus>
+                            </div>
+                            <div class="col-3">
+                                <button class="btn btn-info" [disabled]="!formShare.valid" type="submit">Share</button>
+                            </div>
+                        </div>
+                        <ng-container *ngIf="formShare.controls['email'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formShare.get('email').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formShare.get('email').valid">
+                                <span *ngIf="formShare.controls['email'].errors?.required">This field is required</span>
+                                <span *ngIf="formShare.controls['email'].errors?.pattern">Doesn't look like an email</span>
+                            </div>
+                        </ng-container>
+                    </div>
+
+                    <label for="clients" class="control-label">Users managing this network</label>
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th scope="col">User</th>
+                                    <th scope="col" class="w-px-25"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let userNetwork of usersNetwork">
+                                    <td>
+                                        <div class="btn-circle btn p-0 popover-item">
+                                            <img src="{{ userNetwork.user.img | image}}" class="rounded-circle" width="39">
+                                        </div>
+                                    </td>
+                                    <th scope="row">{{ userNetwork.user.email }}</th>
+                                    <td class="text-right">
+                                        <div *ngIf="_userService.user._id !== userNetwork.user._id">
+                                            <button type="button" class="btn btn-outline-danger" [swal]="{ title: 'Are you sure?', text: 'This user will loose the access to this network', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteShare(userNetwork._id)">
+                                                <i class="mdi mdi-eraser"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="update-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form [formGroup]="formUpdate" (ngSubmit)="update()">
+                <div class="modal-header">
+                    <h4 class="modal-title">Update network</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="name" class="control-label">Network name</label>
+                        <div class="row">
+                            <div class="col-9">
+                                <input id="name" type="text" class="form-control" placeholder="Network" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': formUpdate.controls['name'].touched && !formUpdate.get( 'name').valid , 'is-valid': formUpdate.controls['name'].touched && formUpdate.get( 'name').valid } "
+                                    autofocus>
+                            </div>
+                            <div class="col-3">
+                                <button class="btn btn-info" [disabled]="!formUpdate.valid" type="submit">Update</button>
+                            </div>
+                        </div>
+                        <ng-container *ngIf="formUpdate.controls['name'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formUpdate.get('name').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formUpdate.get('name').valid">
+                                <span *ngIf="formUpdate.controls['name'].errors?.required">This field is required</span>
+                                <span *ngIf="formUpdate.controls['name'].errors?.minlength">Network name must has at least 2 characters </span>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="new-network-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <app-new-network (updateNetworks)="loadNetworks()"></app-new-network>
+</div>
+
+<!-- /.modal -->
+<div id="websites-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Websites by network</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="websites-table" class="table">
+                        <thead>
+                            <tr>
+                                <th>Domain</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngIf="websites.length > 0">
+                            <tr *ngFor="let website of websites">
+                                <td>{{ website.domain }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

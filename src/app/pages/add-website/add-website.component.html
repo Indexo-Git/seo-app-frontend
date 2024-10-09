@@ -1,0 +1,218 @@
+<div class="row animated fadeIn" *ngIf="loading">
+    <div class="col-12 text-center">
+        <i class="fas fa-spinner fa-2x fa-spin"></i>
+    </div>
+</div>
+<div *ngIf="!loading">
+    <form [formGroup]="form">
+        <div class="row animated fadeIn">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>General info</h4>
+                        <div class="form-group">
+                            <label class="control-label">Domain</label>
+                            <input type="text" class="form-control" placeholder="url.com" autocomplete="off" formControlName="domain" [ngClass]="{ 'is-invalid': form.controls['domain'].touched && !form.get('domain').valid , 'is-valid': form.controls['domain'].touched && form.get('domain').valid } "
+                                autofocus>
+                            <ng-container *ngIf="form.controls['domain'].touched">
+                                <div class="valid-feedback animated fadeIn" *ngIf="checkingDomain">
+                                    <span>We're checking if this domain already exist</span>
+                                </div>
+                                <div class="valid-feedback animated fadeIn" *ngIf="form.get('domain').valid">
+                                    <span>Looks good</span>
+                                </div>
+                                <div class="invalid-feedback animated fadeIn" *ngIf="!form.get('domain').valid">
+                                    <span *ngIf="form.controls['domain'].errors?.required">This field is required</span>
+                                    <span *ngIf="form.controls['domain'].errors?.pattern">Doesn't look like an valid domain</span>
+                                    <span *ngIf="form.controls['domain'].errors?.exist">This domain is already registered</span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">Comment:</label>
+                            <textarea class="form-control" placeholder="Some extra info about this website" autocomplete="off" formControlName="comment" [ngClass]="{ 'is-invalid': form.controls['comment'].touched && !form.get('comment').valid , 'is-valid': form.controls['comment'].touched && form.get('comment').valid } "></textarea>
+                            <ng-container *ngIf="form.controls['comment'].touched">
+                                <div class="valid-feedback animated fadeIn" *ngIf="form.get('comment').valid">
+                                    <span>Looks good</span>
+                                </div>
+                                <div class="invalid-feedback animated fadeIn" *ngIf="!form.get('comment').valid">
+                                    <span *ngIf="form.controls['comment'].errors?.minlength">Your comment must has at least 10 characters</span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                <input id="favorite" type="checkbox" class="custom-control-input" formControlName="favorite">
+                                <label class="custom-control-label" for="favorite">Favorite</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox">
+                                <input id="sold" type="checkbox" class="custom-control-input" formControlName="sold">
+                                <label class="custom-control-label" for="sold">Sold</label>
+                            </div>
+                        </div>
+                        <hr>
+                        <h4>Which technology this site it will use?</h4>
+                        <div class="form-group">
+                            <label for="tech-name" class="control-label">Technology name</label>
+                            <input id="tech-name" type="text" class="form-control" placeholder="Technology" autocomplete="off" (keyup)="manageTechnologies()" formControlName="technology" [ngClass]="{ 'is-invalid': form.controls['technology'].touched && !form.get('technology').valid , 'is-valid': form.controls['technology'].touched && form.get('technology').valid } ">
+                            <ng-container *ngIf="form.controls['technology'].touched">
+                                <div class="valid-feedback animated fadeIn" *ngIf="form.get('technology').valid">
+                                    <span>Looks good</span>
+                                </div>
+                                <div class="invalid-feedback animated fadeIn" *ngIf="!form.get('technology').valid">
+                                    <span *ngIf="form.controls['technology'].errors?.required">This field is required</span>
+                                    <span *ngIf="form.controls['technology'].errors?.minlength">Your name must has at least 2 characters </span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="form-group">
+                            <label for="technologies" class="control-label">Technologies available</label>
+                            <div class="custom-control custom-radio" *ngFor="let technology of technologies">
+                                <input name="technologies" type="radio" class="custom-control-input" value="{{ technology._id }}" id="{{ technology._id }}" (change)="onTechnologyChange( $event )" [disabled]="disableTechnologies" [checked]="selectedTechnology == technology._id">
+                                <label class="custom-control-label" for="{{ technology._id }}">{{ technology.name }}</label> <i class="fas fa-times text-danger pointer ml-2" (click)="deleteByField('technology', technology._id)"></i>
+                            </div>
+                        </div>
+                        <h4>Which type this site it will be?</h4>
+                        <div class="form-group">
+                            <label for="type-name" class="control-label">Type</label>
+                            <input id="type-name" type="text" class="form-control" placeholder="Type" autocomplete="off" (keyup)="manageTypes()" formControlName="type" [ngClass]="{ 'is-invalid': form.controls['type'].touched && !form.get('type').valid , 'is-valid': form.controls['type'].touched && form.get('type').valid } ">
+                            <ng-container *ngIf="form.controls['type'].touched">
+                                <div class="valid-feedback animated fadeIn" *ngIf="form.get('type').valid">
+                                    <span>Looks good</span>
+                                </div>
+                                <div class="invalid-feedback animated fadeIn" *ngIf="!form.get('type').valid">
+                                    <span *ngIf="form.controls['type'].errors?.required">This field is required</span>
+                                    <span *ngIf="form.controls['type'].errors?.minlength">Your name must has at least 2 characters </span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="form-group">
+                            <label for="types" class="control-label">Types available</label>
+                            <div class="custom-control custom-radio" *ngFor="let type of types">
+                                <input name="types" type="radio" class="custom-control-input" value="{{ type._id }}" id="{{ type._id }}" (change)="onTypeChange( $event )" [disabled]="disableTypes" [checked]="selectedType == type._id">
+                                <label class="custom-control-label" for="{{ type._id }}">{{ type.name }}</label> <i class="fas fa-times text-danger pointer ml-2" (click)="deleteByField('type', type._id)"></i>
+                            </div>
+                        </div>
+                        <hr>
+                        <h4>Which category this site will be part of?</h4>
+                        <div class="form-group">
+                            <label for="category-name" class="control-label">Name</label>
+                            <input id="category-name" type="text" class="form-control" placeholder="Category" autocomplete="off" (keyup)="manageCategories()" formControlName="category" [ngClass]="{ 'is-invalid': form.controls['category'].touched && !form.get('category').valid , 'is-valid': form.controls['category'].touched && form.get('category').valid } ">
+                            <ng-container *ngIf="form.controls['category'].touched">
+                                <div class="valid-feedback animated fadeIn" *ngIf="form.get('category').valid">
+                                    <span>Looks good</span>
+                                </div>
+                                <div class="invalid-feedback animated fadeIn" *ngIf="!form.get('category').valid">
+                                    <span *ngIf="form.controls['category'].errors?.required">This field is required</span>
+                                    <span *ngIf="form.controls['category'].errors?.minlength">Your name must has at least 2 characters </span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="form-group">
+                            <label for="categories" class="control-label">Categories available</label>
+                            <div class="custom-control custom-radio" *ngFor="let category of categories">
+                                <input name="categories" type="radio" class="custom-control-input" value="{{ category._id }}" id="{{ category._id }}" (change)="onCategoryChange( $event )" [disabled]="disableCategories" [checked]="selectedCategory.includes(category._id)">
+                                <label class="custom-control-label" for="{{ category._id }}">{{ category.name }}</label> <i class="fas fa-times text-danger pointer ml-2" (click)="deleteByField('category', category._id)"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Which network this site will be part of?</h4>
+                        <div class="form-group">
+                            <label for="network-name" class="control-label">Name</label>
+                            <input id="network-name" type="text" class="form-control" placeholder="Network" autocomplete="off" formControlName="network" [ngClass]="{ 'is-invalid': form.controls['network'].touched && !form.get('network').valid , 'is-valid': form.controls['network'].touched && form.get('network').valid } ">
+                            <ng-container *ngIf="form.controls['network'].touched">
+                                <div class="valid-feedback animated fadeIn" *ngIf="form.get('network').valid">
+                                    <span>Looks good</span>
+                                </div>
+                                <div class="invalid-feedback animated fadeIn" *ngIf="!form.get('network').valid">
+                                    <span *ngIf="form.controls['network'].errors?.required">This field is required</span>
+                                    <span *ngIf="form.controls['network'].errors?.minlength">Your name must has at least 2 characters </span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="form-group">
+                            <label for="networks" class="control-label">Networks available</label>
+                            <div class="custom-control custom-checkbox" *ngFor="let network of networks">
+                                <input type="checkbox" class="custom-control-input" value="{{ network._id }}" id="{{ network._id }}" (change)="onNetworkChange( $event )" [checked]="checkedNetworks.includes(network._id)">
+                                <label class="custom-control-label" for="{{ network._id }}">{{ network.name }}</label>
+                            </div>
+                        </div>
+                        <hr>
+                        <h4>Which city this site it will be part of?</h4>
+                        <div class="form-group">
+                            <label for="city-name" class="control-label">City</label>
+                            <input id="city-name" type="text" class="form-control" placeholder="City" autocomplete="off" (keyup)="manageCities()" formControlName="city" [ngClass]="{ 'is-invalid': form.controls['city'].touched && !form.get('city').valid , 'is-valid': form.controls['city'].touched && form.get('city').valid } ">
+                            <ng-container *ngIf="form.controls['city'].touched">
+                                <div class="valid-feedback animated fadeIn" *ngIf="form.get('city').valid">
+                                    <span>Looks good</span>
+                                </div>
+                                <div class="invalid-feedback animated fadeIn" *ngIf="!form.get('city').valid">
+                                    <span *ngIf="form.controls['city'].errors?.required">This field is required</span>
+                                    <span *ngIf="form.controls['city'].errors?.minlength">Your name must has at least 2 characters </span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="form-group">
+                            <label for="cities" class="control-label">Cities available</label>
+                            <div class="custom-control custom-radio" *ngFor="let city of cities">
+                                <input name="cities" type="radio" class="custom-control-input" value="{{ city._id }}" id="{{ city._id }}" (change)="onCityChange( $event )" [disabled]="disableCities" [checked]="selectedCity == city._id">
+                                <label class="custom-control-label" for="{{ city._id }}">{{ city.name }}</label> <i class="fas fa-times text-danger pointer ml-2" (click)="deleteCity(city._id)"></i>
+                            </div>
+                        </div>
+                        <hr>
+                        <h4>Which keywords would you like to use?</h4>
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="form-group">
+                                    <input #keyword id="keyword" type="text" class="form-control" placeholder="Keyword: service + city" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <input #demand id="demand" type="number" class="form-control" placeholder="Demand: 5000" min="0">
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input #primary id="primary" type="checkbox" class="custom-control-input">
+                                        <label class="custom-control-label" for="primary">Primary</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-1">
+                                <button class="btn bg-upleadr-blue waves-effect waves-light" type="button" (click)="addKeyword(keyword, demand, primary)">+</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="form-group">
+                                    <h5>Add multiple <small class="text-muted">Example : serrurier ville/12000</small></h5>
+                                    <textarea #bulk class="form-control" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn bg-upleadr-blue waves-effect waves-light btn-block" type="button" (click)="bulkKeywords(bulk)">Bulk keywords</button>
+                            </div>
+                        </div>
+                        <div class="row" *ngIf="keywords.length > 0">
+                            <div class="col">
+                                <h4>Keywords</h4>
+                                <p *ngFor="let keyword of keywords; let i = index"><i class="fas fa-star text-warning" *ngIf="keyword.primary"></i> {{ keyword.name }} {{ keyword.demand }} <span class="text-danger pointer ml-2" (click)="deleteKeyword(i)"><i class="fas fa-times"></i></span></p>
+                            </div>
+                        </div>
+                        <button class="btn btn-info waves-effect waves-light mt-3 mr-3" (click)="saveWebsite()" [disabled]="form.invalid">Save</button>
+                        <button class="btn btn-info waves-effect waves-light mt-3" (click)="saveWebsite(true)" [disabled]="form.invalid">Save and Add more</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

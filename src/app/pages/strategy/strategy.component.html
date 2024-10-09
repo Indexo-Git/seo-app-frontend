@@ -1,0 +1,1069 @@
+<app-menu *ngIf="currentWebsite" [website]='currentWebsite' subMenuActive='strategy' [updateContent]="updateMenuContent.asObservable()" [updateOnPage]="updateMenuOnPage.asObservable()" [updateOnsite]='updateMenuOther.asObservable()' [updateOffsite]='updateMenuOffsite.asObservable()'></app-menu>
+<div class="row animated fadeIn">
+    <div class="col">
+        <div class="card rounded">
+            <div class="card-body">
+                <form [formGroup]="formAnalyze">
+                    <div class="row">
+                        <div class="col-6">
+                            <h4 class="card-title">Serp analysis</h4>
+                            <div class="form-group">
+                                <textarea id="serp" (keyup)="typeAnalyze()" (keydown)="resetCounter()" class="form-control" formControlName="serp" [ngClass]="{ 'is-invalid': formAnalyze.controls['serp'].touched && !formAnalyze.get( 'serp').valid , 'is-valid': formAnalyze.controls['serp'].touched && formAnalyze.get( 'serp').valid } "></textarea>
+                                <ng-container *ngIf="formAnalyze.controls['serp'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="formAnalyze.get('serp').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formAnalyze.get('serp').valid">
+                                        <span *ngIf="formAnalyze.controls['serp'].errors?.required">This field is required</span>
+                                        <span *ngIf="formAnalyze.controls['serp'].errors?.minlength">The serp must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="card-title">Recommendations</h4>
+                            <div class="form-group">
+                                <textarea id="recommendation" (keyup)="typeAnalyze()" (keydown)="resetCounter()" class="form-control" formControlName="recommendation" [ngClass]="{ 'is-invalid': formAnalyze.controls['recommendation'].touched && !formAnalyze.get( 'recommendation').valid , 'is-valid': formAnalyze.controls['recommendation'].touched && formAnalyze.get( 'recommendation').valid } "></textarea>
+                                <ng-container *ngIf="formAnalyze.controls['recommendation'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="formAnalyze.get('recommendation').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formAnalyze.get('recommendation').valid">
+                                        <span *ngIf="formAnalyze.controls['recommendation'].errors?.required">This field is required</span>
+                                        <span *ngIf="formAnalyze.controls['recommendation'].errors?.minlength">The recommendation must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="row mb-2">
+                    <div class="col-2 concurrent" *ngFor="let concurrent of concurrence" (click)="getConcurrent(concurrent)" data-toggle="modal" data-target="#concurrent-modal">
+                        <div class="card rounded">
+                            <div class="card-body">
+                                <span class="conturrent-title">{{ concurrent.title }}</span>
+                                <button type="button" class="close" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this concurrent!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteConcurrent(concurrent._id)">×</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn bg-upleadr-blue float-right" data-toggle="modal" data-target="#concurrent-modal">Add an analysis</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="row my-3">
+    <div class="col-3">
+        <select id="category" class="form-control" (change)="filterCategory($event)">
+            <option>Category</option>
+            <option>Content</option>
+            <option>Backlink</option>
+            <option>Other</option>
+        </select>
+    </div>
+    <div class="col-3">
+        <select id="priority" class="form-control" (change)="filterPriority($event)">
+            <option>Priority</option>
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+        </select>
+    </div>
+    <div class="col-3">
+        <select id="status" class="form-control" (change)="filterStatus($event)">
+            <option selected>Status</option>
+            <option>Done</option>
+            <option>Unfinished</option>
+        </select>
+    </div>
+    <div class="col">
+        <button class="btn bg-upleadr-blue" (click)="resetFilters()"><i class="fa fa-undo"></i></button>
+    </div>
+    <div class="col">
+        <select class="form-control" (change)="changeColumns($event)">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+        </select>
+    </div>
+    <div class="col">
+        <select class="form-control" (change)="showHide($event)">
+            <option>Auto</option>
+            <option>Show all</option>
+            <option>Hide all</option>
+        </select>
+    </div>
+</div>
+
+<div *ngIf="old.length > 0" class="row">
+    <div id="old-accordion" class="col-12">
+        <div class="card">
+            <div class="card-body pointer" id="headingOld" data-toggle="collapse" data-target="#collapseOld" aria-expanded="false" aria-controls="collapseOld">
+                <h5 class="mb-0">Old tasks</h5>
+            </div>
+            <div id="collapseOld" class="collapse row" aria-labelledby="headingOld" data-parent="#old-accordion">
+                <div id="years-accordion" class="col">
+                    <div class="card" *ngFor="let year of years">
+                        <div class="card-header  pointer" id="heading-{{ year }}" data-toggle="collapse" aria-expanded="false" [attr.data-target]="'#collapse-' + year" [attr.aria-controls]="'#collapse-' + year">
+                            <h5 class="mb-0">{{ year }}</h5>
+                        </div>
+                        <div id="collapse-{{ year }}" class="collapse row" [attr.aria-labelledby]="'#heading-' + year" data-parent="#years-accordion">
+                            <ng-container *ngFor="let item of old">
+                                <div *ngIf="item.year === year" [ngClass]="{'col-12': columns === 1 ,'col-6': columns === 2,'col-4': columns === 3}">
+                                    <div class="month">
+                                        <div class="month-header">
+                                            <h6 class="month-title">{{ item.month }} - {{ item.year}} <i *ngIf="!item.done" class="mdi mdi-alert text-warning"></i></h6>
+                                        </div>
+                                        <div class="">
+                                            <div class="task onsite" *ngFor="let task of item.onsite">
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        <span class="badge badge-pill badge-warning mr-2 badge-list">Onsite</span>
+                                                        <span class="mr-1">{{ task.name }}</span>
+                                                        <small class="ti-pencil mr-1" data-toggle="modal" data-target="#onsite-modal" (click)="setUpdateOnsite( task , item )"></small>
+                                                        <small class="ti-close mr-2" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this onsite task!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteOnsite(task)"></small>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <i class="far fa-flag" [ngClass]="{ 'text-warning': task.priority === 'medium','text-danger': task.priority === 'high'}"></i>
+                                                        <div class="float-right">
+                                                            <div class="form-check form-check-inline">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="custom-control-input" id="onsite-{{ task._id }}" [checked]="task.status" (click)="statusOnsite(task._id, task.status)">
+                                                                    <label class="custom-control-label" for="onsite-{{ task._id }}">
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="task offsite" *ngFor="let task of item.offsite" cdkDrag [cdkDragData]="task" [style.display]="showOffsite ? 'block' : 'none'">
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        <span class="badge badge-pill badge-purple mr-2 badge-list">Offsite</span>
+                                                        <span class="mr-1">{{ task.type }}</span>
+                                                        <small class="ti-pencil mr-1 pointer" data-toggle="modal" data-target="#offsite-modal" (click)="setUpdateOffsite( task , item )"></small>
+                                                        <small class="ti-close mr-2" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this offsite task!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteOffsite(task)"></small>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <span *ngIf="task.price != null"><i class="fa fa-euro-sign text-success mr-3">{{ task.price }}</i></span>
+                                                        <i class="far fa-flag" [ngClass]="{ 'text-warning': task.priority === 'medium','text-danger': task.priority === 'high'}"></i>
+                                                        <div class="float-right">
+                                                            <div class="form-check form-check-inline">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="custom-control-input" id="offsite-{{ task._id }}" [checked]="task.status" (click)="statusOffsite( $event, task )">
+                                                                    <label class="custom-control-label" for="offsite-{{ task._id }}">
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="task pages" *ngFor="let page of item.pages" cdkDrag [cdkDragData]="page" [style.display]="showSitemap ? 'block' : 'none'">
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        <span class="badge badge-pill badge-danger mr-2 badge-list">Sitemap</span>
+                                                        <span class="mr-1">{{ page.name }}</span>
+                                                        <small class="ti-pencil mr-1" data-toggle="modal" data-target="#sitemap-modal" (click)="setUpdatePage( page , item )"></small>
+                                                        <small class="ti-close mr-2" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this sitemap task!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteSitemap(page)"></small>
+                                                        <span class="pointer label mr-2" [ngClass]="{'label-gray': page.keywords === null || page.keywords === '', 'label-info' : page.keywords !== null && page.keywords !== '' , 'pointer' : page.keywords !== null && page.keywords !== ''} " data-container="body"
+                                                            title="Keywords" data-toggle="popover" data-html="true" data-placement="top" [attr.data-content]="page.keywords | line">KW</span>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <i class="far fa-flag" [ngClass]="{ 'text-warning': page.priority === 'medium','text-danger': page.priority === 'high'}"></i>
+                                                        <div class="float-right">
+                                                            <div class="form-check form-check-inline">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="custom-control-input" id="created-{{ page._id }}" [checked]="page.created" disabled="">
+                                                                    <label class="custom-control-label" for="created-{{ page._id }}" data-toggle="modal" data-target="#editor-modal" (click)="getText( page._id, page.content )">
+                                                                        <i class="fa fa-edit text-success"></i>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-check form-check-inline">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="custom-control-input" id="online-{{ page._id }}" [checked]="page.online">
+                                                                    <label class="custom-control-label" for="online-{{ page._id }}" (click)="statusPageOnline(page._id)">
+                                                                        <i class="fa fa-globe text-info"></i>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-check form-check-inline">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="custom-control-input" id="optimized-{{ page._id }}" [checked]="page.optimized" disabled="">
+                                                                    <label class="custom-control-label" for="optimized-{{ page._id }}" data-toggle="modal" data-target="#tasks-modal" (click)="getTasks( page._id )">
+                                                                        <i class="fa fa-star text-warning"></i>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="no-task" *ngIf="item.onsite && item.onsite.length == 0 && item.offsite && item.offsite.length == 0 && item.pages && item.pages.length == 0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row animated fadeIn">
+    <div class="col-12">
+        <div class="row" cdkDropListGroup>
+            <div *ngFor="let item of items; let i = index" [ngClass]="{'col-12': columns === 1 ,'col-6': columns === 2,'col-4': columns === 3, 'hide' : item.onsite.length == 0 && item.offsite.length == 0 && item.pages.length == 0 && item.date < date }">
+                <div class="month" id="month-{{ item.month }}-{{ item.year}}">
+                    <button type="button" class="btn waves-effect waves-light btn-rounded btn-xs btn-outline-dark float-right" data-toggle="modal" data-target="#task-modal" (click)="setMonth(item)"><i class="fa fa-plus"></i></button>
+                    <div class="month-header pointer" id="heading-{{ item.month }}-{{ item.year}}" data-toggle="collapse" [attr.data-target]="'#collapse-'+item.month+'-'+item.year" [attr.aria-expanded]="item.date.getMonth() === date.getMonth()" [attr.aria-controls]="'collapse-' + item.month + '-' + item.year">
+                        <h3 class="month-title" *ngIf="item.date.getMonth() === date.getMonth()">{{ item.month }} - {{ item.year}}<i *ngIf="!item.done && item.date < date" class="mdi mdi-alert text-warning"></i></h3>
+                        <h6 class="month-title" *ngIf="item.date.getMonth() !== date.getMonth()">{{ item.month }} - {{ item.year}}<i *ngIf="!item.done && item.date < date" class="mdi mdi-alert text-warning"></i></h6>
+                    </div>
+                    <div id="collapse-{{ item.month }}-{{ item.year}}" class="collapse month-collapse show" [ngClass]="{'show' : item.date.getMonth() === date.getMonth() }" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListData]="item" [attr.aria-labelledby]="'#heading-' + item.month +'-'+ item.year"
+                        [attr.data-parent]="'#month-' + item.month + '-' + item.year">
+                        <div class="task pages" *ngFor="let page of item.pages" cdkDrag [cdkDragData]="page">
+                            <div class="container-fluid d-flex px-0">
+                                <div class="col pl-0 padding-task">
+                                    <div class="row task-container no-gutters">
+                                        <div class="col-7">
+                                            <span class="badge badge-pill bg-content text-white mr-2 badge-list">Content</span>
+                                            <span class="mr-3">{{ page.name }}</span>
+                                            <span class="pointer label mr-2" [ngClass]="{'label-gray': page.keywords === null || page.keywords === '', 'label-info' : page.keywords !== null && page.keywords !== '' , 'pointer' : page.keywords !== null && page.keywords !== ''} " data-container="body"
+                                                title="Keywords" data-toggle="popover" data-html="true" data-placement="top" [attr.data-content]="page.keywords | line">KW</span>
+                                            <small class="ti-files mr-1 text-invalid pointer mr-1" (click)="duplicateSitemap(page)"></small>
+                                            <small class="ti-pencil mr-1 pointer text-invalid" data-toggle="modal" data-target="#sitemap-modal" (click)="setUpdatePage( page , item )"></small>
+                                            <small class="ti-close pointer text-invalid" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this sitemap task!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteSitemap(page)"></small>
+                                        </div>
+                                        <div class="col-5">
+                                            <i class="far fa-flag mr-3" [ngClass]="{ 'text-warning': page.priority === 'medium','text-danger': page.priority === 'high'}"></i>
+                                            <span class="badge badge-pill badge-gray mr-2"><i class="fas fa-calendar"></i> {{ page.programed }}</span>
+                                            <span class="badge badge-pill badge-gray mr-2" *ngIf="page.status"><i class="fas fa-check"></i> {{ page.date | date }}</span>
+                                            <div class="float-right">
+                                                <div *ngIf="item.date >= date">
+                                                    <div class="d-inline">
+                                                        <i class="fa fa-align-left mr-2 pointer" [ngClass]="{'text-success': page.created, 'text-invalid' : !page.created}" data-toggle="modal" data-target="#editor-modal" (click)="getText( page._id, page.content )"></i>
+                                                        <i class="fa fa-code mr-3 pointer" [ngClass]="{'text-success': page.online, 'text-invalid' : !page.online}" (click)="statusPageOnline(page)"></i>
+                                                    </div>
+                                                </div>
+                                                <div *ngIf="item.date < date">
+                                                    <div class="d-inline">
+                                                        <i class="fa fa-align-left mr-2 pointer" [ngClass]="{'text-success': page.created}" data-toggle="modal" data-target="#text-modal" (click)="showText( page.content )"></i>
+                                                        <i class="fa fa-code mr-3" [ngClass]="{'text-success': page.online}"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <i *ngIf="page.delayed" class="fa fa-circle ml-2 text-red" title="Delayed task"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item" *ngIf="item.date >= date" (click)="getTasks( page._id )" data-toggle="modal" data-target="#tasks-modal">
+                                    <div class="task-checkbox pointer" [ngClass]="{'checked': page.status}">
+                                        <i class="fas" [ngClass]="{'text-white fa-check': page.status, 'text-invalid fa-times': !page.status}"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item" *ngIf="item.date < date">
+                                    <div class="task-checkbox text-center" [ngClass]="{'checked': page.status, 'old': !page.status}">
+                                        <i class="fas text-white" [ngClass]="{'fa-check': page.status, 'fa-times': !page.status}"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task offsite" *ngFor="let task of item.offsite" cdkDrag [cdkDragData]="task">
+                            <div class="container-fluid d-flex px-0">
+                                <div class="col pl-0 padding-task">
+                                    <div class="row task-container no-gutters">
+                                        <div class="col-7">
+                                            <span class="badge badge-pill bg-netlinking text-white mr-2 badge-list">Backlink</span>
+                                            <span class="mr-3">{{ task.type }}</span>
+                                            <small class="ti-files mr-1 text-invalid pointer" (click)="duplicateOffsite(task)"></small>
+                                            <small class="ti-pencil mr-1 pointer text-invalid" data-toggle="modal" data-target="#offsite-modal" (click)="setUpdateOffsite( task , item )"></small>
+                                            <small class="ti-close pointer text-invalid" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this offsite task!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteOffsite(task)"></small>
+                                        </div>
+                                        <div class="col-5">
+                                            <span *ngIf="task.price != null"><i class="fa fa-euro-sign text-success mr-3">{{ task.price }}</i></span>
+                                            <i class="far fa-flag mr-3" [ngClass]="{ 'text-warning': task.priority === 'medium','text-danger': task.priority === 'high'}"></i>
+                                            <span class="badge badge-pill badge-gray mr-2"><i class="fas fa-calendar"></i> {{ task.programed }}</span>
+                                            <span class="badge badge-pill badge-gray" *ngIf="task.status"><i class="fas fa-check"></i> {{ task.date | date }}</span>
+                                            <div class="float-right" *ngIf="item.date >= date">
+                                                <i class="fa fa-toggle-on mr-2 pointer  text-invalid" data-toggle="modal" data-target="#offsite-modal" (click)="setUpdateOffsite( task , item )"></i>
+                                                <i class="fa fa-link  text-invalid mr-3" data-toggle="modal" data-target="#interlink-modal" (click)="initTable( task , item )"></i>
+                                            </div>
+                                            <i *ngIf="task.delayed" class="fa fa-circle ml-2 text-red" title="Delayed task"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item" *ngIf="item.date >= date" (click)="statusOffsite(task)">
+                                    <div class="task-checkbox pointer" [ngClass]="{'checked': task.status}">
+                                        <i class="fas" [ngClass]="{'text-white fa-check': task.status, 'text-invalid fa-times': !task.status}"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item" *ngIf="item.date < date">
+                                    <div class="task-checkbox text-center" [ngClass]="{'checked': task.status, 'old': !task.status}">
+                                        <i class="fas text-white" [ngClass]="{'fa-check': task.status, 'fa-times': !task.status}"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task onsite" *ngFor="let task of item.onsite" cdkDrag [cdkDragData]="task">
+                            <div class="container-fluid d-flex px-0">
+                                <div class="col pl-0 padding-task">
+                                    <div class="row task-container no-gutters">
+                                        <div class="col-7">
+                                            <span class="badge badge-pill bg-other text-white mr-2 badge-list">Other</span>
+                                            <span class="mr-3">{{ task.name }}</span>
+                                            <small class="ti-files mr-1 text-invalid pointer" (click)="duplicateOnsite(task)"></small>
+                                            <small class="ti-pencil mr-1 pointer text-invalid" data-toggle="modal" data-target="#onsite-modal" (click)="setUpdateOnsite( task , item )"></small>
+                                            <small class="ti-close pointer text-invalid" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this onsite task!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteOnsite(task)"></small>
+                                        </div>
+                                        <div class="col-5">
+                                            <i class="far fa-flag mr-3" [ngClass]="{ 'text-warning': task.priority === 'medium','text-danger': task.priority === 'high'}"></i>
+                                            <span class="badge badge-pill badge-gray mr-2"><i class="fas fa-calendar"></i> {{ task.programed }}</span>
+                                            <span class="badge badge-pill badge-gray" *ngIf="task.status"><i class="fas fa-check"></i> {{ task.date | date }}</span>
+                                            <i *ngIf="task.delayed" class="fa fa-circle ml-2 text-red" title="Delayed task"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item" *ngIf="item.date >= date" (click)="statusOnsite(task)">
+                                    <div class="task-checkbox pointer" [ngClass]="{'checked': task.status}">
+                                        <i class="fas" [ngClass]="{'text-white fa-check': task.status, 'text-invalid fa-times': !task.status}"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item" *ngIf="item.date < date">
+                                    <div class="task-checkbox old text-center" [ngClass]="{'checked': task.status, 'old': !task.status}">
+                                        <i class="fas text-white" [ngClass]="{'fa-check': task.status, 'fa-times': !task.status}"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="no-task" *ngIf="item.onsite && item.onsite.length == 0 && item.offsite && item.offsite.length == 0 && item.pages && item.pages.length == 0" cdkDrag cdkDragDisabled="true">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="task-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add task in <span *ngIf="month">{{ month.month}} <small class="text-muted">{{ month.year }}</small></span></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#onsite" role="tab">
+                            <span class="hidden-sm-up"><i class="ti-rocket"></i></span>
+                            <span class="hidden-xs-down"> Add Other Task</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#offsite" role="tab">
+                            <span class="hidden-sm-up"><i class="ti-link"></i></span>
+                            <span class="hidden-xs-down"> Add Offsite Backlink</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#sitemap" role="tab">
+                            <span class="hidden-sm-up"><i class="ti-layout"></i></span>
+                            <span class="hidden-xs-down"> Add Content</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#bulk" role="tab">
+                            <span class="hidden-sm-up"><i class="ti-upload"></i></span>
+                            <span class="hidden-xs-down"> Bulk Content</span>
+                        </a>
+                    </li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content tabcontent-border">
+                    <div class="tab-pane active  p-20" id="onsite" role="tabpanel">
+                        <div class="row">
+                            <div class="col-12">
+                                <form [formGroup]="formOnsite" (ngSubmit)="saveOnsite()">
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="control-label">Name</label>
+                                        <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': formOnsite.controls['name'].touched && !formOnsite.get( 'name').valid , 'is-valid': formOnsite.controls['name'].touched && formOnsite.get( 'name').valid } ">
+                                        <ng-container *ngIf="formOnsite.controls['name'].touched">
+                                            <div class="valid-feedback animated fadeIn" *ngIf="formOnsite.get('name').valid">
+                                                <span>Looks good</span>
+                                            </div>
+                                            <div class="invalid-feedback animated fadeIn" *ngIf="!formOnsite.get('name').valid">
+                                                <span *ngIf="formOnsite.controls['name'].errors?.required">This field is required</span>
+                                                <span *ngIf="formOnsite.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                                            </div>
+                                        </ng-container>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Priority</label>
+                                        <br>
+                                        <div class="form-check form-check-inline">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="onsite-low" formControlName="priority" value="low" checked>
+                                                <label class="custom-control-label" for="onsite-low"><i class="m-r-10 far fa-flag"></i></label>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="onsite-medium" formControlName="priority" value="medium">
+                                                <label class="custom-control-label" for="onsite-medium"><i class="m-r-10 far fa-flag text-warning"></i></label>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="onsite-high" formControlName="priority" value="high">
+                                                <label class="custom-control-label" for="onsite-high"><i class="m-r-10 far fa-flag text-danger"></i></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button" class="btn bg-upleadr-blue waves-effect mr-3" (click)="saveOnsite()">Save</button>
+                                        <button type="button" class="btn bg-upleadr-blue waves-effect mr-3" (click)="saveOnsite(true)">Save and close</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane p-20" id="offsite" role="tabpanel">
+                        <div class="row">
+                            <div class="col-12">
+                                <form [formGroup]="formOffsite" (ngSubmit)="saveOffsite()">
+                                    <div class="form-group">
+                                        <label for="type" class="control-label">Type</label>
+                                        <input type="text" class="form-control" placeholder="Type" autocomplete="off" formControlName="type" [ngClass]="{ 'is-invalid': formOffsite.controls['type'].touched && !formOffsite.get( 'type').valid , 'is-valid': formOffsite.controls['type'].touched && formOffsite.get( 'type').valid } ">
+                                        <ng-container *ngIf="formOffsite.controls['type'].touched">
+                                            <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('type').valid">
+                                                <span>Looks good</span>
+                                            </div>
+                                            <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('type').valid">
+                                                <span *ngIf="formOffsite.controls['type'].errors?.required">This field is required</span>
+                                                <span *ngIf="formOffsite.controls['type'].errors?.minlength">Your type must has at least 2 characters </span>
+                                            </div>
+                                        </ng-container>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="url" class="control-label">URL</label>
+                                                <input type="text" class="form-control" placeholder="URL" autocomplete="off" formControlName="url" [ngClass]="{ 'is-invalid': formOffsite.controls['url'].touched && !formOffsite.get( 'url').valid , 'is-valid': formOffsite.controls['url'].touched && formOffsite.get( 'url').valid } ">
+                                                <ng-container *ngIf="formOffsite.controls['url'].touched">
+                                                    <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('url').valid">
+                                                        <span>Looks good</span>
+                                                    </div>
+                                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('url').valid">
+                                                        <span *ngIf="formOffsite.controls['url'].errors?.required">This field is required</span>
+                                                        <span *ngIf="formOffsite.controls['url'].errors?.minlength">Your url must has at least 2 characters </span>
+                                                    </div>
+                                                </ng-container>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="target" class="control-label">Target</label>
+                                                <input type="text" class="form-control" placeholder="Target" autocomplete="off" formControlName="target" [ngClass]="{ 'is-invalid': formOffsite.controls['target'].touched && !formOffsite.get( 'target').valid , 'is-valid': formOffsite.controls['target'].touched && formOffsite.get( 'target').valid } ">
+                                                <ng-container *ngIf="formOffsite.controls['target'].touched">
+                                                    <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('target').valid">
+                                                        <span>Looks good</span>
+                                                    </div>
+                                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('target').valid">
+                                                        <span *ngIf="formOffsite.controls['target'].errors?.required">This field is required</span>
+                                                        <span *ngIf="formOffsite.controls['target'].errors?.minlength">Your target must has at least 2 characters </span>
+                                                    </div>
+                                                </ng-container>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="anchor" class="control-label">Anchor</label>
+                                                <input type="text" class="form-control" placeholder="Anchor" autocomplete="off" formControlName="anchor" [ngClass]="{ 'is-invalid': formOffsite.controls['anchor'].touched && !formOffsite.get( 'anchor').valid , 'is-valid': formOffsite.controls['anchor'].touched && formOffsite.get( 'anchor').valid } ">
+                                                <ng-container *ngIf="formOffsite.controls['anchor'].touched">
+                                                    <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('anchor').valid">
+                                                        <span>Looks good</span>
+                                                    </div>
+                                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('anchor').valid">
+                                                        <span *ngIf="formOffsite.controls['anchor'].errors?.required">This field is required</span>
+                                                        <span *ngIf="formOffsite.controls['anchor'].errors?.minlength">Your anchor must has at least 2 characters </span>
+                                                    </div>
+                                                </ng-container>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="price" class="control-label">Price</label>
+                                                <input type="number" class="form-control" placeholder="Price" autocomplete="off" formControlName="price" [ngClass]="{ 'is-invalid': formOffsite.controls['price'].touched && !formOffsite.get( 'price').valid , 'is-valid': formOffsite.controls['price'].touched && formOffsite.get( 'price').valid } ">
+                                                <ng-container *ngIf="formOffsite.controls['price'].touched">
+                                                    <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('price').valid">
+                                                        <span>Looks good</span>
+                                                    </div>
+                                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('price').valid">
+                                                        <span *ngIf="formOffsite.controls['price'].errors?.pattern">This field must be a number</span>
+                                                    </div>
+                                                </ng-container>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Priority</label>
+                                        <br>
+                                        <div class="form-check form-check-inline">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="offsite-low" formControlName="priority" value="low" checked>
+                                                <label class="custom-control-label" for="offsite-low"><i class="m-r-10 far fa-flag"></i></label>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="offsite-medium" formControlName="priority" value="medium">
+                                                <label class="custom-control-label" for="offsite-medium"><i class="m-r-10 far fa-flag text-warning"></i></label>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="offsite-high" formControlName="priority" value="high">
+                                                <label class="custom-control-label" for="offsite-high"><i class="m-r-10 far fa-flag text-danger"></i></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <input *ngIf="month" type="hidden" name="month" value="month.index">
+                                        <button type="button" class="btn bg-upleadr-blue waves-effect mr-3" (click)="saveOffsite()">Save</button>
+                                        <button type="button" class="btn bg-upleadr-blue waves-effect mr-3" (click)="saveOffsite(true)">Save and close</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane p-20" id="sitemap" role="tabpanel">
+                        <div class="row">
+                            <div class="col-12">
+                                <form [formGroup]="formPage" (ngSubmit)="newPage()">
+                                    <div class="form-group">
+                                        <label for="recipient-name" class="control-label">Name</label>
+                                        <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': formPage.controls['name'].touched && !formPage.get( 'name').valid , 'is-valid': formPage.controls['name'].touched && formPage.get( 'name').valid } ">
+                                        <ng-container *ngIf="formPage.controls['name'].touched">
+                                            <div class="valid-feedback animated fadeIn" *ngIf="formPage.get('name').valid">
+                                                <span>Looks good</span>
+                                            </div>
+                                            <div class="invalid-feedback animated fadeIn" *ngIf="!formPage.get('name').valid">
+                                                <span *ngIf="formPage.controls['name'].errors?.required">This field is required</span>
+                                                <span *ngIf="formPage.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                                            </div>
+                                        </ng-container>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mother" class="control-label">Mother page</label>
+                                        <select id="mother" formControlName="mother" class="form-control">
+                                            <option value="null">Select mother</option>
+                                            <option *ngFor="let page of pages" value="{{ page._id }}">{{ page.name }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="keywords" class="control-label">Keywords</label>
+                                        <textarea id="keywords" class="form-control" formControlName="keywords" [ngClass]="{ 'is-invalid': formPage.controls['keywords'].touched && !formPage.get( 'keywords').valid , 'is-valid': formPage.controls['keywords'].touched && formPage.get( 'keywords').valid } "></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label">Priority</label>
+                                        <br>
+                                        <div class="form-check form-check-inline">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="sitemap-low" formControlName="priority" value="low" checked>
+                                                <label class="custom-control-label" for="sitemap-low"><i class="m-r-10 far fa-flag"></i></label>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="sitemap-medium" formControlName="priority" value="medium">
+                                                <label class="custom-control-label" for="sitemap-medium"><i class="m-r-10 far fa-flag text-warning"></i></label>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input" id="sitemap-high" formControlName="priority" value="high">
+                                                <label class="custom-control-label" for="sitemap-high"><i class="m-r-10 far fa-flag text-danger"></i></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <input *ngIf="month" type="hidden" name="month" value="month.index">
+                                        <button type="button" class="btn bg-upleadr-blue waves-effect mr-3" (click)="newPage()">Save</button>
+                                        <button type="button" class="btn bg-upleadr-blue waves-effect mr-3" (click)="newPage(true)">Save and close</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane p-20" id="bulk" role="tabpanel">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-check form-check-inline">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" class="custom-control-input" id="radio-xml" name="radio-bulk" checked>
+                                        <label class="custom-control-label" for="radio-xml">XML Format</label>
+                                    </div>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" class="custom-control-input" id="radio-text" name="radio-bulk">
+                                        <label class="custom-control-label" for="radio-text">Text Format</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="bulk-pages" class="control-label">Content</label>
+                                    <textarea id="bulk-pages" class="form-control" rows="20"></textarea>
+                                </div>
+                                <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="button" (click)="bulkPages()">Bulk</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect mr-3" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="onsite-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" *ngIf="onsite">Modify onsite: {{ onsite.name }} <small class="text-muted">Programed: {{ onsite.programed }}</small></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formOnsite" (ngSubmit)="updateOnsite()">
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">Name</label>
+                        <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': formOnsite.controls['name'].touched && !formOnsite.get( 'name').valid , 'is-valid': formOnsite.controls['name'].touched && formOnsite.get( 'name').valid } ">
+                        <ng-container *ngIf="formOnsite.controls['name'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formOnsite.get('name').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formOnsite.get('name').valid">
+                                <span *ngIf="formOnsite.controls['name'].errors?.required">This field is required</span>
+                                <span *ngIf="formOnsite.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Priority</label>
+                        <br>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="u-onsite-low" formControlName="priority" value="low">
+                                <label class="custom-control-label" for="u-onsite-low"><i class="m-r-10 far fa-flag"></i></label>
+                            </div>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="u-onsite-medium" formControlName="priority" value="medium">
+                                <label class="custom-control-label" for="u-onsite-medium"><i class="m-r-10 far fa-flag text-warning"></i></label>
+                            </div>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="u-onsite-high" formControlName="priority" value="high">
+                                <label class="custom-control-label" for="u-onsite-high"><i class="m-r-10 far fa-flag text-danger"></i></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn bg-upleadr-blue waves-effect mr-3">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="offsite-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" *ngIf="offsite">Modify offsite: {{ offsite.type }} <small class="text-muted">Programed: {{ offsite.programed }}</small></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formOffsite" (ngSubmit)="updateOffsite()">
+                    <div class="form-group">
+                        <label for="type" class="control-label">Type</label>
+                        <input type="text" class="form-control" *ngIf="offsite" [value]="offsite.type" autocomplete="off" formControlName="type" [ngClass]="{ 'is-invalid': formOffsite.controls['type'].touched && !formOffsite.get( 'type').valid , 'is-valid': formOffsite.controls['type'].touched && formOffsite.get( 'type').valid } ">
+                        <ng-container *ngIf="formOffsite.controls['type'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('type').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('type').valid">
+                                <span *ngIf="formOffsite.controls['type'].errors?.required">This field is required</span>
+                                <span *ngIf="formOffsite.controls['type'].errors?.minlength">Your type must has at least 2 characters </span>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="url" class="control-label">URL</label>
+                                <input type="text" class="form-control" *ngIf="offsite" [value]="offsite.url" autocomplete="off" formControlName="url" [ngClass]="{ 'is-invalid': formOffsite.controls['url'].touched && !formOffsite.get( 'url').valid , 'is-valid': formOffsite.controls['url'].touched && formOffsite.get( 'url').valid } ">
+                                <ng-container *ngIf="formOffsite.controls['url'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('url').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('url').valid">
+                                        <span *ngIf="formOffsite.controls['url'].errors?.required">This field is required</span>
+                                        <span *ngIf="formOffsite.controls['url'].errors?.minlength">Your url must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="target" class="control-label">Target</label>
+                                <input type="text" class="form-control" *ngIf="offsite" [value]="offsite.target" autocomplete="off" formControlName="target" [ngClass]="{ 'is-invalid': formOffsite.controls['target'].touched && !formOffsite.get( 'target').valid , 'is-valid': formOffsite.controls['target'].touched && formOffsite.get( 'target').valid } ">
+                                <ng-container *ngIf="formOffsite.controls['target'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('target').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('target').valid">
+                                        <span *ngIf="formOffsite.controls['target'].errors?.required">This field is required</span>
+                                        <span *ngIf="formOffsite.controls['target'].errors?.minlength">Your target must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="anchor" class="control-label">Anchor</label>
+                                <input type="text" class="form-control" *ngIf="offsite" [value]="offsite.anchor" autocomplete="off" formControlName="anchor" [ngClass]="{ 'is-invalid': formOffsite.controls['anchor'].touched && !formOffsite.get( 'anchor').valid , 'is-valid': formOffsite.controls['anchor'].touched && formOffsite.get( 'anchor').valid } ">
+                                <ng-container *ngIf="formOffsite.controls['anchor'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('anchor').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('anchor').valid">
+                                        <span *ngIf="formOffsite.controls['anchor'].errors?.required">This field is required</span>
+                                        <span *ngIf="formOffsite.controls['anchor'].errors?.minlength">Your anchor must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="price" class="control-label">Price</label>
+                                <input type="text" class="form-control" *ngIf="offsite" [value]="offsite.price" autocomplete="off" formControlName="price" [ngClass]="{ 'is-invalid': formOffsite.controls['price'].touched && !formOffsite.get( 'price').valid , 'is-valid': formOffsite.controls['price'].touched && formOffsite.get( 'price').valid } ">
+                                <ng-container *ngIf="formOffsite.controls['price'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="formOffsite.get('price').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formOffsite.get('price').valid">
+                                        <span *ngIf="formOffsite.controls['price'].errors?.required">This field is required</span>
+                                        <span *ngIf="formOffsite.controls['price'].errors?.minlength">Your price must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Priority</label>
+                        <br>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="u-offsite-low" formControlName="priority" value="low" *ngIf="offsite" [checked]="offsite.priority === 'low'">
+                                <label class="custom-control-label" for="u-offsite-low"><i class="m-r-10 far fa-flag"></i></label>
+                            </div>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="u-offsite-medium" formControlName="priority" value="medium" *ngIf="offsite" [checked]="offsite.priority === 'medium'">
+                                <label class="custom-control-label" for="u-offsite-medium"><i class="m-r-10 far fa-flag text-warning "></i></label>
+                            </div>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="u-offsite-high" formControlName="priority" value="high" *ngIf="offsite" [checked]="offsite.priority === 'high'">
+                                <label class="custom-control-label" for="u-offsite-high"><i class="m-r-10 far fa-flag text-danger"></i></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input *ngIf="month" type="hidden" name="month" value="month.index">
+                        <button type="submit" class="btn bg-upleadr-blue waves-effect mr-3">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="sitemap-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" *ngIf="page">Modify page: {{ page.name }} <small class="text-muted">Programed: {{ page.programed }}</small></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formPage" (ngSubmit)="updatePage()">
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">Name</label>
+                        <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': formPage.controls['name'].touched && !formPage.get( 'name').valid , 'is-valid': formPage.controls['name'].touched && formPage.get( 'name').valid } ">
+                        <ng-container *ngIf="formPage.controls['name'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formPage.get('name').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formPage.get('name').valid">
+                                <span *ngIf="formPage.controls['name'].errors?.required">This field is required</span>
+                                <span *ngIf="formPage.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <div class="form-group">
+                        <label for="mother" class="control-label">Mother page</label>
+                        <select id="mother" formControlName="mother" class="form-control">
+                            <option value="null">Select mother</option>
+                            <option *ngFor="let page of pages" value="{{ page._id }}">{{ page.name }}</option>
+                        </select>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="keywords" class="control-label">Keywords</label>
+                        <textarea id="keywords" class="form-control" formControlName="keywords" [ngClass]="{ 'is-invalid': formPage.controls['keywords'].touched && !formPage.get( 'keywords').valid , 'is-valid': formPage.controls['keywords'].touched && formPage.get( 'keywords').valid } "></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Priority</label>
+                        <br>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="u-sitemap-low" formControlName="priority" value="low">
+                                <label class="custom-control-label" for="u-sitemap-low"><i class="m-r-10 far fa-flag"></i></label>
+                            </div>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="u-sitemap-medium" formControlName="priority" value="medium">
+                                <label class="custom-control-label" for="u-sitemap-medium"><i class="m-r-10 far fa-flag text-warning"></i></label>
+                            </div>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="u-sitemap-high" formControlName="priority" value="high">
+                                <label class="custom-control-label" for="u-sitemap-high"><i class="m-r-10 far fa-flag text-danger"></i></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input *ngIf="month" type="hidden" name="month" value="month.index">
+                        <button type="submit" class="btn bg-upleadr-blue waves-effect mr-3">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="concurrent-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add analysis</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+
+            <div class="modal-body">
+                <form [formGroup]="formConcurrent" (ngSubmit)="saveConcurrent()">
+                    <div class="form-group">
+                        <label for="title" class="control-label">Title</label>
+                        <input type="text" class="form-control" placeholder="Title" autocomplete="off" formControlName="title" [ngClass]="{ 'is-invalid': formConcurrent.controls['title'].touched && !formConcurrent.get( 'title').valid , 'is-valid': formConcurrent.controls['title'].touched && formConcurrent.get('title').valid } ">
+                        <ng-container *ngIf="formConcurrent.controls['title'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formConcurrent.get('title').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formConcurrent.get('title').valid">
+                                <span *ngIf="formConcurrent.controls['title'].errors?.required">This field is required</span>
+                                <span *ngIf="formConcurrent.controls['title'].errors?.minlength">Title must has at least 2 characters </span>
+                            </div>
+                        </ng-container>
+                    </div>
+                </form>
+                <div class="form-group">
+                    <ckeditor id="editor" [editor]="Editor" [(ngModel)]="editorData" [config]="{ toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedlist', 'numberedlist', 'blockquote','|', 'undo', 'redo' ] }"></ckeditor>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect mr-3" data-dismiss="modal">Close</button>
+                <button type="button" class="btn bg-upleadr-blue waves-effect" (click)="saveConcurrent()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="editor-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Editor modal</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <ckeditor id="editor" [editor]="Editor" [(ngModel)]="editorData" (change)="onTextChange($event)" [config]="{ toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedlist', 'numberedlist', 'blockquote','|', 'undo', 'redo' ] }"></ckeditor>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect mr-3" data-dismiss="modal">Close</button>
+                <button type="button" class="btn bg-upleadr-blue waves-effect" (click)="updateContent()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- /.modal -->
+<div id="text-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Page text content</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body" [innerHTML]="textToShow"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- /.modal -->
+<div id="tasks-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content todo-list">
+            <div class="modal-header">
+                <h4 class="modal-title">Page tasks</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="task">
+                            <div class="container-fluid d-flex px-0">
+                                <div class="col pl-0">
+                                    <div class="row task-container no-gutters">
+                                        <div class="col">
+                                            <span>Select/unselect all</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item">
+                                    <div class="task-checkbox pointer" [ngClass]="{'checked': allSemanticDone}" (click)="updateAll()">
+                                        <i class="fas fa-check text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="task" *ngFor="let task of pageTasks">
+                            <div class="container-fluid d-flex px-0">
+                                <div class="col pl-0">
+                                    <div class="row task-container no-gutters">
+                                        <div class="col">
+                                            <span>{{ task.task.name }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-fixed-width-item">
+                                    <div class="task-checkbox pointer" [ngClass]="{'checked': task.status}" (click)="statusSemanticTask( task )">
+                                        <i class="fas fa-check text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="interlink-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title mr-2">Internal Netlinking Tool</h4>
+                <small class="mt-2"> White: No link between sites
+                    Red: This site B has already received a link from site A
+                    Purple: Reciprocal link exchange
+                    Green: This site B has already sent a link to site A</small>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning" *ngIf="existBackLink">
+                    You've already created a backlink for this offsite task
+                </div>
+                <div class="table-responsive" *ngIf="!existBackLink">
+                    <table id="interlinking-table" class="table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Domain</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Networks</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let website of interlinkingWebsites" [ngClass]="{'bg-success': website.sender, 'bg-danger' : website.receiver, 'bg-purple': website.both, 'text-white' : website.sender || website.receiver || website.both}">
+                                <td>
+                                    <i *ngIf="website.sender || website.receiver || website.both" class="fas text-white" [ngClass]="{'fa-arrow-down': website.sender, 'fa-arrow-up' : website.receiver, 'fa-arrows-alt-v': website.both}"></i>
+                                </td>
+                                <td>{{ website.data.domain }}</td>
+                                <td>{{ website.data.category.name }}</td>
+                                <td>{{ website.data.type.name }}</td>
+                                <td>
+                                    <span class="mr-1" *ngFor="let network of website.networks">{{ network.name }}</span>
+                                </td>
+                                <td>
+                                    <i *ngIf="website.data.info" class="fa fa-plug" data-html="true" data-container="body" title="Connection info" data-toggle="popover" data-placement="top" [attr.data-content]="website.data.info"></i>
+                                </td>
+                                <td>
+                                    <div class="form-check form-check-inline">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" name="check-back-link" id="checkbox-{{ website.data._id }}" (click)="selectBackLink(website.data)">
+                                            <label class="custom-control-label" for="checkbox-{{ website.data._id }}"></label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect mr-3" data-dismiss="modal">Close</button>
+                <button type="button" class="btn bg-upleadr-blue waves-effect" (click)="createLink()" [disabled]="!selectedBackLink">Validate</button>
+            </div>
+        </div>
+    </div>
+</div>

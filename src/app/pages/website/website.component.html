@@ -1,0 +1,596 @@
+<app-menu *ngIf="website" [website]='website'></app-menu>
+<div class="row animated fadeIn" *ngIf="website">
+    <div class="col-md-12">
+        <div class="card card-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#website" role="tab">
+                        <span class="hidden-sm-up"><i class="ti-world mr-1"></i></span>
+                        <span class="hidden-xs-down">Website</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#connection" role="tab">
+                        <span class="hidden-sm-up"><i class="ti-plug mr-1"></i></span>
+                        <span class="hidden-xs-down">Connection</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#share" role="tab">
+                        <span class="hidden-sm-up"><i class="ti-share mr-1"></i></span>
+                        <span class="hidden-xs-down">Share</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#delete" role="tab">
+                        <span class="hidden-sm-up"><i class="ti-trash mr-1 text-danger"></i></span>
+                        <span class="hidden-xs-down text-danger">Delete</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content tabcontent-border">
+                <div class="tab-pane p-20 active" id="website" role="tabpanel">
+                    <div class="row">
+                        <div class="col">
+                            <div class="float-right">
+                                <button class="btn mr-3" [ngClass]="{'btn-outline-primary': website.checkIndex, 'btn-outline-secondary': !website.checkIndex}" (click)="updateCheckIndex()" title="Check Index">
+                                    <i class="fas fa-bell"></i>
+                                </button>
+                                <button class="btn mr-3" [ngClass]="{'btn-outline-warning': website.favorite, 'btn-outline-secondary': !website.favorite}" (click)="updateFavorite()" title="Favorite">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                                <button class="btn" [ngClass]="{'btn-outline-success': website.sold, 'btn-outline-secondary': !website.sold}" (click)="updateSold()" title="Sold">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </button>
+                            </div>
+                            <h3><b>{{ website.domain }}</b></h3>
+                        </div>
+                    </div>
+                    <hr>
+                    <form [formGroup]="formComment" (ngSubmit)="updateComment()">
+                        <div class="row">
+                            <div class="col-10">
+                                <div class="form-group">
+                                    <label for="comment" class="control-label">Comment</label>
+                                    <textarea id="comment" type="text" class="form-control" autocomplete="off" formControlName="comment" [ngClass]="{ 'is-invalid': formComment.controls['comment'].touched && !formComment.get( 'comment').valid , 'is-valid': formComment.controls['comment'].touched && formComment.get( 'comment').valid } "></textarea>
+
+                                    <ng-container *ngIf="formComment.controls['comment'].touched">
+                                        <div class="valid-feedback animated fadeIn" *ngIf="formComment.get('comment').valid">
+                                            <span>Looks good</span>
+                                        </div>
+                                        <div class="invalid-feedback animated fadeIn" *ngIf="!formComment.get('comment').valid">
+                                            <span *ngIf="formComment.controls['comment'].errors?.required">This field is required</span>
+                                            <span *ngIf="formComment.controls['comment'].errors?.minlength">Your comment must has at least 10 characters </span>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <button type="submit" class="btn btn-primary mt-5">Save comment</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div clas="col-12">
+                            <h4 class="ml-3">Info</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-md-6">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td class="w-10"><i class="fa fa-calendar"></i></td>
+                                        <td>{{ website.date | date }}</td>
+                                        <td class="w-10"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="w-10"><i class="fas fa-map-marker"></i></td>
+                                        <td *ngIf="city">{{ city.name }}</td>
+                                        <td class="w-10">
+                                            <i class="fas fa-edit text-muted pointer mr-2" data-toggle="modal" data-target="#city-modal" (click)="showFormCity(city)"></i>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12 col-md-6">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td class="w-10"><i class="fas fa-bookmark"></i></td>
+                                        <td>{{ website.category.name }}</td>
+                                        <td class="w-10">
+                                            <i class="fas fa-edit text-muted pointer mr-2" data-toggle="modal" data-target="#category-modal" (click)="showFormCategories()"></i>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="w-10"><i class="fas fa-cogs"></i></td>
+                                        <td>{{ website.technology.name }}</td>
+                                        <td class="w-10">
+                                            <i class="fas fa-edit text-muted pointer mr-2" data-toggle="modal" data-target="#technology-modal" (click)="showFormTechnology()"></i>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="w-10"><i class="fas fa-flag"></i></td>
+                                        <td>{{ website.type.name }}</td>
+                                        <td class="w-10">
+                                            <i class="fas fa-edit text-muted pointer mr-2" data-toggle="modal" data-target="#type-modal" (click)="showFormTypes()"></i>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="keywords">
+                        <div class="col-sm-12 col-md-6">
+                            <button type="button" class="btn bg-upleadr-blue btn-xs float-right" data-toggle="modal" data-target="#new-keywords-modal"><i class="fa fa-plus"></i> </button>
+                            <h4>Keywords</h4>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="w-10"></th>
+                                        <th>Name</th>
+                                        <th>Demand</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let keyword of keywords">
+                                        <td class="w-10"><i *ngIf="keyword.primary" class="fas fa-star text-warning"></i></td>
+                                        <td>{{ keyword.name }}</td>
+                                        <td>{{ keyword.demand }}</td>
+                                        <td class="w-10">
+                                            <i class="fas fa-edit text-muted pointer mr-2" data-toggle="modal" data-target="#keywords-modal" (click)="showFormKeywords(keyword)"></i>
+                                            <i class="fas fa-trash text-muted pointer" [swal]="{ title: 'Are you sure?', text: 'You will not be able to recover this keyword!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteKeyword(keyword._id)"></i>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12 col-md-6">
+                            <button type="button" class="btn bg-upleadr-blue btn-xs float-right" data-toggle="modal" data-target="#manage-networks-modal">
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <h4>Networks</h4>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let network of userNetworks">
+                                        <td>{{ network.name }}</td>
+                                        <td class="w-10">
+                                            <i class="fas fa-check text-info" *ngIf="websiteNetworks.includes(network._id)"></i>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane  p-20" id="connection" role="tabpanel">
+                    <div class="row">
+                        <div class="col-6">
+                            <h4>Add connection info for admin</h4>
+                            <ckeditor id="editor-admin" [editor]="Editor" [(ngModel)]="editorAdmin" [config]="{ toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedlist', 'numberedlist', 'blockquote','|', 'undo', 'redo' ] }"></ckeditor>
+                            <button class="btn btn-primary pull-right mt-3" type="button" (click)="updateConnection()">Save</button>
+                        </div>
+                        <div class="col-6">
+                            <h4>Add connection info for user</h4>
+                            <ckeditor id="editor-user" [editor]="Editor" [(ngModel)]="editorUser" [config]="{ toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedlist', 'numberedlist', 'blockquote','|', 'undo', 'redo' ] }"></ckeditor>
+                            <button class="btn btn-primary pull-right mt-3" type="button" (click)="updateInfo()">Save</button>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="tab-pane p-20" id="share" role="tabpanel">
+                    <div class="row">
+                        <div class="col">
+                            <form [formGroup]="formShare" (ngSubmit)="addUser()">
+                                <h4>Add user</h4>
+                                <div class="form-group">
+                                    <label for="input-share" class="control-label">Email</label>
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <input id="input-share" type="email" class="form-control" placeholder="Email" autocomplete="off" formControlName="email" [ngClass]="{ 'is-invalid': formShare.controls['email'].touched && !formShare.get( 'email').valid , 'is-valid': formShare.controls['email'].touched && formShare.get( 'email').valid } ">
+                                            <ng-container *ngIf="formShare.controls['email'].touched">
+                                                <div class="valid-feedback animated fadeIn" *ngIf="formShare.get('email').valid">
+                                                    <span>Looks good</span>
+                                                </div>
+                                                <div class="invalid-feedback animated fadeIn" *ngIf="!formShare.get('email').valid">
+                                                    <span *ngIf="formShare.controls['email'].errors?.required">This field is required</span>
+                                                    <span *ngIf="formShare.controls['email'].errors?.pattern">Doesn't look like an valid email</span>
+                                                </div>
+                                            </ng-container>
+                                        </div>
+                                        <div class="col-2">
+                                            <button class="btn btn-primary pull-right" type="submit" [disabled]="!formShare.valid">Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="d-md-flex align-items-center">
+                                <div>
+                                    <h4 class="card-title">Users with access to website's info</h4>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table no-wrap v-middle">
+                                    <thead>
+                                        <tr class="border-0">
+                                            <th class="border-0"></th>
+                                            <th class="border-0">Email</th>
+                                            <th class="border-0">Name</th>
+                                            <th class="border-0"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let rel of users">
+                                            <td>
+                                                <img src="{{ rel.user.img | image}}" alt="user" class="rounded-circle" width="45">
+                                            </td>
+                                            <td>{{ rel.user.email }}</td>
+                                            <td>{{ rel.user.name }}</td>
+                                            <td>
+                                                <i *ngIf="website.creator._id !== rel.user._id" class="fas fa-trash text-danger pointer" [swal]="{ title: 'Are you sure?', text: 'This user will loose the access to this website info', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteRel(rel._id)"></i>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane p-20" id="delete" role="tabpanel">
+                    <div class="alert alert-warning">
+                        <h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i> Warning</h3>
+                        If you click this button, {{ website.domain }} will be deleted and all the info and data related to it.
+                    </div>
+                    <br>
+                    <button type="button" class="btn btn-danger btn-rounded btn-xl" [swal]="{ title: 'Are you sure?', text: 'You will not be able to recover this website and its content!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteWebsite()">
+                        <i class="fa fa-trash mr-3"></i> Delete website
+                    </button>
+                    <div class="row mt-4">
+                        <div class="col">
+                            <p *ngIf="deletingKeywords">Deleting keywords...<span *ngIf="deletedTotalKeywords">{{deletedTotalKeywords}} keywords deleted</span></p>
+                            <p *ngIf="deletingPositions">Deleting positions...<span *ngIf="deletedTotalPositions">{{deletedTotalPositions}} positions deleted</span></p>
+                            <p *ngIf="deletingAnalyze">Deleting analyzes... <span *ngIf="deletedAnalyze">Analyze deleted</span></p>
+                            <p *ngIf="deletingOnsiteTasks">Deleting onsite tasks... <span *ngIf="deletedTotalOnsite">{{deletedTotalOnsite}} onsite tasks deleted</span></p>
+                            <p *ngIf="deletingOffsiteTasks">Deleting offsite tasks... <span *ngIf="deletedTotalOffsite">{{deletedTotalOffsite}} offsite tasks deleted</span></p>
+                            <p *ngIf="deletingPages">Deleting pages... <span *ngIf="deletedTotalPages">{{deletedTotalPages}} pages deleted</span></p>
+                            <p *ngIf="deletingSemanticTasks">Deleting semantic tasks... <span *ngIf="deletedTotalSemantic">{{deletedTotalSemantic}} semantic tasks deleted</span></p>
+                            <p *ngIf="deletingTechnicalTasks">Deleting technical tasks... <span *ngIf="deletedTotalTechnical">{{deletedTotalTechnical}} technical tasks deleted</span></p>
+                            <p *ngIf="deletingBackLinks">Deleting backlinks... <span *ngIf="deletedTotalBackLinks">{{deletedTotalBackLinks}} backlinks deleted</span></p>
+                            <p *ngIf="deletingConcurrence">Deleting concurrence... <span *ngIf="deletedTotalConcurrence">{{deletedTotalConcurrence}} elements of concurrence deleted</span></p>
+                            <p *ngIf="deletingUsers">Deleting relations with users... <span *ngIf="deletedTotalUsers">{{deletedTotalUsers}} relations with users deleted</span></p>
+                            <p *ngIf="deletingNetworks">Deleting relations with networks... <span *ngIf="deletedTotalNetworks">{{deletedTotalNetworks}} relations with networks deleted</span></p>
+                            <p *ngIf="deletingCity">Deleting relation with city... <span *ngIf="cityFinished">Relation with city deleted</span></p>
+                            <br>
+                            <h3 *ngIf="allFinished">Website and content related to it completely deleted.. you will be redirect in {{ finalCounter }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="city-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form [formGroup]="formCity" (ngSubmit)="updateCity()">
+                <div class="modal-header">
+                    <h4 class="modal-title">City management</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <h4>Which city this site it will be part of?</h4>
+                    <div class="form-group">
+                        <label for="city-name" class="control-label">City</label>
+                        <div class="row">
+                            <div class="col-10">
+                                <input id="city-name" type="text" class="form-control" placeholder="City" autocomplete="off" (keyup)="manageCities()" formControlName="name" [ngClass]="{ 'is-invalid': formCity.controls['name'].touched && !formCity.get( 'name').valid , 'is-valid': formCity.controls['name'].touched && formCity.get( 'name').valid } "
+                                    autofocus>
+                            </div>
+                            <div class="col-2">
+                                <button type="button" class="btn bg-upleadr-blue" (click)="newCity()"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <ng-container *ngIf="formCity.controls['name'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formCity.get('name').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formCity.get('name').valid">
+                                <span *ngIf="formCity.controls['name'].errors?.required">This field is required</span>
+                                <span *ngIf="formCity.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <div class="form-group">
+                        <label for="cities" class="control-label">Types available</label>
+                        <div class="custom-control custom-radio" *ngFor="let city of cities">
+                            <input name="cities" type="radio" class="custom-control-input" value="{{ city._id }}" id="{{ city._id }}" (change)="onCityChange( $event )" [disabled]="disableCities" [checked]="selectedCity == city._id">
+                            <label class="custom-control-label" for="{{ city._id }}">{{ city.name }}</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-info waves-effect waves-light" type="submit" [disabled]="formCity.value.name == '' && selectedCity == ''">Finish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="technology-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Technology management</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formTechnology" (ngSubmit)="updateTechnology()">
+                    <h4>Which technology this site it will use?</h4>
+                    <div class="form-group">
+                        <label for="tech-name" class="control-label">Technology name</label>
+                        <div class="row">
+                            <div class="col-10">
+                                <input id="tech-name" type="text" class="form-control" placeholder="Name" autocomplete="off" (keyup)="manageTechnologies()" formControlName="name" [ngClass]="{ 'is-invalid': formTechnology.controls['name'].touched && !formTechnology.get( 'name').valid , 'is-valid': formTechnology.controls['name'].touched && formTechnology.get( 'name').valid } "
+                                    autofocus>
+                            </div>
+                            <div class="col-2">
+                                <button type="button" class="btn bg-upleadr-blue" (click)="newTechnology()"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <ng-container *ngIf="formTechnology.controls['name'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formTechnology.get('name').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formTechnology.get('name').valid">
+                                <span *ngIf="formTechnology.controls['name'].errors?.required">This field is required</span>
+                                <span *ngIf="formTechnology.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <div class="form-group">
+                        <label for="technologies" class="control-label">Technologies available</label>
+                        <div class="custom-control custom-radio" *ngFor="let technology of technologies">
+                            <input name="technologies" type="radio" class="custom-control-input" value="{{ technology._id }}" id="{{ technology._id }}" (change)="onTechnologyChange( $event )" [disabled]="disableTechnologies" [checked]="selectedTechnology == technology._id">
+                            <label class="custom-control-label" for="{{ technology._id }}">{{ technology.name }}</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-info waves-effect waves-light pull-right ml-3" type="submit" [disabled]="formTechnology.value.name == '' && selectedTechnology == ''">Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="type-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Type management</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formType" (ngSubmit)="updateType()">
+                    <h4>Which type this site it will be?</h4>
+                    <div class="form-group">
+                        <label for="type-name" class="control-label">Type</label>
+                        <div class="row">
+                            <div class="col-10">
+                                <input id="type-name" type="text" class="form-control" placeholder="Name" autocomplete="off" (keyup)="manageTypes()" formControlName="name" [ngClass]="{ 'is-invalid': formType.controls['name'].touched && !formType.get( 'name').valid , 'is-valid': formType.controls['name'].touched && formType.get( 'name').valid } "
+                                    autofocus>
+                            </div>
+                            <div class="col-2">
+                                <button type="button" class="btn bg-upleadr-blue" (click)="newType()"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <ng-container *ngIf="formType.controls['name'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formType.get('name').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formType.get('name').valid">
+                                <span *ngIf="formType.controls['name'].errors?.required">This field is required</span>
+                                <span *ngIf="formType.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <div class="form-group">
+                        <label for="types" class="control-label">Types available</label>
+                        <div class="custom-control custom-radio" *ngFor="let type of types">
+                            <input name="types" type="radio" class="custom-control-input" value="{{ type._id }}" id="{{ type._id }}" (change)="onTypeChange( $event )" [disabled]="disableTypes" [checked]="selectedType == type._id">
+                            <label class="custom-control-label" for="{{ type._id }}">{{ type.name }}</label>
+                            <i class="fas fa-trash text-muted pointer ml-2" [swal]="{ title: 'Are you sure?', text: 'You will not be able to recover this type!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deleteType(type._id)"></i>
+                        </div>
+                    </div>
+                    <button class="btn btn-info waves-effect waves-light pull-right ml-3" type="submit" [disabled]="formType.value.name == '' && selectedType == ''">Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="category-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Type management</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formCategory" (ngSubmit)="updateCategory()">
+                    <h4>Which category this site will be part of?</h4>
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">Name</label>
+                        <input type="text" class="form-control" placeholder="Name" autocomplete="off" (keyup)="manageCategories()" formControlName="name" [ngClass]="{ 'is-invalid': formCategory.controls['name'].touched && !formCategory.get( 'name').valid , 'is-valid': formCategory.controls['name'].touched && formCategory.get( 'name').valid } "
+                            autofocus>
+                        <ng-container *ngIf="formCategory.controls['name'].touched">
+                            <div class="valid-feedback animated fadeIn" *ngIf="formCategory.get('name').valid">
+                                <span>Looks good</span>
+                            </div>
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!formCategory.get('name').valid">
+                                <span *ngIf="formCategory.controls['name'].errors?.required">This field is required</span>
+                                <span *ngIf="formCategory.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <div class="form-group">
+                        <label for="categories" class="control-label">Categories available</label>
+                        <div class="custom-control custom-radio" *ngFor="let category of categories">
+                            <input name="categories" type="radio" class="custom-control-input" value="{{ category._id }}" id="{{ category._id }}" (change)="onCategoryChange( $event )" [disabled]="disableCategories" [checked]="selectedCategory.includes(category._id)">
+                            <label class="custom-control-label" for="{{ category._id }}">{{ category.name }}</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-info waves-effect waves-light pull-right ml-3" type="submit" [disabled]="formCategory.value.name == '' && selectedCategory == ''">Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="keywords-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Keyword management</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formKeywords" (ngSubmit)="updateKeyword()" *ngIf="keyword">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <input id="keyword" type="text" class="form-control" placeholder="Keyword: service + city" autocomplete="off" formControlName="keyword" [ngClass]="{ 'is-invalid': formKeywords.controls['keyword'].touched && !formKeywords.get( 'keyword').valid , 'is-valid': formKeywords.controls['keyword'].touched && formKeywords.get( 'keyword').valid } "
+                                    autofocus>
+                                <ng-container *ngIf="formKeywords.controls['demand'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="formKeywords.get('keyword').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formKeywords.get('keyword').valid">
+                                        <span *ngIf="formKeywords.controls['keyword'].errors?.required">This field is required</span>
+                                        <span *ngIf="formKeywords.controls['keyword'].errors?.minlength">Your keyword must has at least 2 characters</span>
+                                        <span *ngIf="formKeywords.controls['keyword'].errors?.exist">This keyword is already registered</span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                <input id="demand" type="number" class="form-control" placeholder="Demand: 5000" min="0" formControlName="demand" [ngClass]="{ 'is-invalid': formKeywords.controls['demand'].touched && !formKeywords.get( 'demand').valid , 'is-valid': formKeywords.controls['demand'].touched && formKeywords.get( 'demand').valid } ">
+                            </div>
+                        </div>
+                        <div class="col-1">
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input id="primary" type="checkbox" class="custom-control-input" formControlName="primary" [checked]="keyword.primary">
+                                    <label class="custom-control-label" for="primary"><i class="fas fa-star text-warning"></i></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-primary waves-effect waves-light mr-1" type="button" [disabled]="!formKeywords.valid" (click)="updateKeyword()">Save</button>
+                            <button class="btn bg-upleadr-blue waves-effect waves-light" type="button" [disabled]="!formKeywords.valid" (click)="newKeyword()">+</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="new-keywords-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Keyword management</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formKeywords" (ngSubmit)="updateKeyword()">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <input id="keyword" type="text" class="form-control" placeholder="Keyword: service + city" autocomplete="off" formControlName="keyword" [ngClass]="{ 'is-invalid': formKeywords.controls['keyword'].touched && !formKeywords.get( 'keyword').valid , 'is-valid': formKeywords.controls['keyword'].touched && formKeywords.get( 'keyword').valid } "
+                                    autofocus>
+                                <ng-container *ngIf="formKeywords.controls['demand'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="formKeywords.get('keyword').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!formKeywords.get('keyword').valid">
+                                        <span *ngIf="formKeywords.controls['keyword'].errors?.required">This field is required</span>
+                                        <span *ngIf="formKeywords.controls['keyword'].errors?.minlength">Your keyword must has at least 2 characters</span>
+                                        <span *ngIf="formKeywords.controls['keyword'].errors?.exist">This keyword is already registered</span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                <input id="demand" type="number" class="form-control" placeholder="Demand: 5000" min="0" formControlName="demand" [ngClass]="{ 'is-invalid': formKeywords.controls['demand'].touched && !formKeywords.get( 'demand').valid , 'is-valid': formKeywords.controls['demand'].touched && formKeywords.get( 'demand').valid } ">
+                            </div>
+                        </div>
+                        <div class="col-1">
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input id="primary" type="checkbox" class="custom-control-input" formControlName="primary">
+                                    <label class="custom-control-label" for="primary"><i class="fas fa-star text-warning"></i></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn bg-upleadr-blue waves-effect waves-light" type="button" [disabled]="!formKeywords.valid" (click)="newKeyword()">+</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <h5>Add multiple <small class="text-muted">Example : serrurier paris/12000</small></h5>
+                            <div class="form-group">
+                                <textarea id="bulk-keywords" class="form-control" rows="10"></textarea>
+                            </div>
+                            <button class="btn btn-info" type="button" (click)="bulkKeywords()">Bulk</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="manage-networks-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Networks management</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="networks" class="control-label">Networks available</label>
+                    <div class="custom-control custom-checkbox" *ngFor="let network of userNetworks">
+                        <input type="checkbox" class="custom-control-input" value="{{ network._id }}" id="{{ network._id }}" (change)="onNetworkChange( $event )" [checked]="checkedNetworks.includes(network._id)">
+                        <label class="custom-control-label" for="{{ network._id }}">{{ network.name }}</label>
+                    </div>
+                </div>
+                <button class="btn btn-info waves-effect waves-light pull-right ml-3" type="button" [disabled]="checkedNetworks.length < 1" (click)="updateRelNetworks()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

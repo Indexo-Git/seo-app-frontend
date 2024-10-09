@@ -1,0 +1,46 @@
+<div class="auth-wrapper d-flex no-block justify-content-center align-items-center animated fadeIn">
+    <div class="auth-box">
+        <div id="loginform">
+            <div class="logo">
+                <span class="db"><img src="assets/images/logo-login.png" alt="logo" /></span>
+                <h5 class="font-medium m-b-20">Sign In to Admin</h5>
+            </div>
+            <!-- Form -->
+            <div class="row">
+                <div class="col-12">
+                    <form ngNativeValidate id="auth" class="form-horizontal m-t-20 form-control-line" [formGroup]="form" (ngSubmit)="login()">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1"><i class="ti-email"></i></span>
+                            </div>
+                            <input type="email" class="form-control form-control-lg" placeholder="Email" autocomplete="off" formControlName="email" [ngClass]="{ 'is-invalid': form.controls['email'].touched && !form.get( 'email').valid , 'is-valid': form.controls['email'].touched && form.get( 'email').valid } ">
+                            <div class="invalid-feedback animated fadeIn" *ngIf="!form.get('email').valid && email == ''">
+                                <span *ngIf="form.controls['email'].errors?.required">This field is required</span>
+                                <span *ngIf="form.controls['email'].errors?.pattern">Doesn't look like an email</span>
+                            </div>
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon2"><i class="ti-lock"></i></span>
+                            </div>
+                            <input type="password" class="form-control form-control-lg" placeholder="Password" autocomplete="off" formControlName="password" [ngClass]="{ 'is-invalid': form.controls['password'].touched && !form.get( 'password').valid , 'is-valid': form.controls['password'].touched && form.get( 'password').valid } ">
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1" formControlName="remember" name="remember">
+                                    <label class="custom-control-label" for="customCheck1">Remember me</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group text-center">
+                            <div class="col-xs-12 p-b-20">
+                                <button class="btn btn-block btn-lg btn-info" [disabled]="!form.valid" type="submit">Log In</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>-

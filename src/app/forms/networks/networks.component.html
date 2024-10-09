@@ -1,0 +1,39 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Networks management</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Network <input #input type="text" class="form-control" (keyup)="search(input.value)"></th>
+                            <th scope="col"></th>
+                            <th scope="col" class="w-px-25"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let network of networks">
+                            <th scope="row">{{ network.network.name }}</th>
+                            <td class="">
+                                <button type="button" class="btn btn-outline-info">
+                                    <i class="m-r-10 mdi mdi-lead-pencil"></i>
+                                </button>
+                            </td>
+                            <td class="">
+                                <button (click)="delete( network )" type="button" class="btn btn-outline-danger">
+                                    <i class="m-r-10 mdi mdi-eraser"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>

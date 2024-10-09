@@ -1,0 +1,133 @@
+<div class="row animated fadeIn" *ngIf="loading">
+  <div class="col-12">
+      <h2>Loading info</h2>
+      <h4>Total websites: <span *ngIf="totalWebsites > 0">{{ totalWebsites }}</span> <i *ngIf="totalWebsites == 0" class="fas fa-spinner fa-spin"></i></h4>
+      <h4>Getting website's tasks : {{ loadedWebsites }} </h4>
+      <h4 *ngIf="creatingItems">Creating view per month <i class="fas fa-spinner fa-spin"></i></h4>
+  </div>
+</div>
+
+<div class="row animated fadeIn">
+  <div class="col-12">
+    <div class="row">
+      <div *ngFor="let item of items; let i = index" class="col-12">
+        <div class="month" id="month-{{ item.month }}-{{ item.year}}">
+          <div class="month-header pointer" id="heading-{{ item.month }}-{{ item.year}}" data-toggle="collapse" [attr.data-target]="'#collapse-'+item.month+'-'+item.year" [attr.aria-expanded]="item.date.getMonth() === date.getMonth()" [attr.aria-controls]="'collapse-' + item.month + '-' + item.year">
+              <h3 class="month-title" *ngIf="item.date.getMonth() === date.getMonth()">{{ item.month }} - {{ item.year}}</h3>
+              <h6 class="month-title" *ngIf="item.date.getMonth() !== date.getMonth()">{{ item.month }} - {{ item.year}}</h6>
+          </div>
+          <div id="collapse-{{ item.month }}-{{ item.year}}" class="collapse month-collapse show" [ngClass]="{'show' : item.date.getMonth() === date.getMonth() }" [attr.aria-labelledby]="'#heading-' + item.month +'-'+ item.year" [attr.data-parent]="'#month-' + item.month + '-' + item.year">
+            <div class="task pages" *ngFor="let page of item.pages">
+                <div class="container-fluid d-flex px-0">
+                    <div class="col pl-0 padding-task">
+                        <div class="row task-container no-gutters">
+                            <div class="col-7">
+                                <span class="badge badge-pill badge-website text-white mr-2">{{ page.website.domain }}</span>
+                                <span class="badge badge-pill bg-content text-white mr-2 badge-list">Content</span>
+                                <span class="mr-3">{{ page.name }}</span>
+                            </div>
+                            <div class="col-5">
+                                <i class="far fa-flag mr-3" [ngClass]="{ 'text-warning': page.priority === 'medium','text-danger': page.priority === 'high'}"></i>
+                                <span class="badge badge-pill badge-gray mr-2"><i class="fas fa-calendar"></i> {{ page.programed }}</span>
+                                <span class="badge badge-pill badge-gray mr-2" *ngIf="page.status"><i class="fas fa-check"></i> {{ page.date | date }}</span>
+                                <div class="float-right">
+                                    <div *ngIf="item.date >= date">
+                                        <div class="d-inline">
+                                            <i class="fa fa-align-left mr-2 pointer" [ngClass]="{'text-success': page.created, 'text-invalid' : !page.created}"></i>
+                                            <i class="fa fa-code mr-3 pointer" [ngClass]="{'text-success': page.online, 'text-invalid' : !page.online}"></i>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="item.date < date">
+                                        <div class="d-inline">
+                                            <i class="fa fa-align-left mr-2 pointer" [ngClass]="{'text-success': page.created}"></i>
+                                            <i class="fa fa-code mr-3" [ngClass]="{'text-success': page.online}"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <i *ngIf="page.delayed" class="fa fa-circle ml-2 text-red" title="Delayed task"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-fixed-width-item" *ngIf="item.date >= date">
+                        <div class="task-checkbox pointer" [ngClass]="{'checked': page.status}">
+                            <i class="fas" [ngClass]="{'text-white fa-check': page.status, 'text-invalid fa-times': !page.status}"></i>
+                        </div>
+                    </div>
+                    <div class="flex-fixed-width-item" *ngIf="item.date < date">
+                        <div class="task-checkbox text-center" [ngClass]="{'checked': page.status, 'old': !page.status}">
+                            <i class="fas text-white" [ngClass]="{'fa-check': page.status, 'fa-times': !page.status}"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="task offsite" *ngFor="let task of item.offsite">
+                <div class="container-fluid d-flex px-0">
+                    <div class="col pl-0 padding-task">
+                        <div class="row task-container no-gutters">
+                            <div class="col-7">
+                                <span class="badge badge-pill badge-website text-white mr-2">{{ task.website.domain }}</span>
+                                <span class="badge badge-pill bg-netlinking text-white mr-2 badge-list">Backlink</span>
+                                <span class="mr-3">{{ task.type }}</span>
+                            </div>
+                            <div class="col-5">
+                                <span *ngIf="task.price != null"><i class="fa fa-euro-sign text-success mr-3">{{ task.price }}</i></span>
+                                <i class="far fa-flag mr-3" [ngClass]="{ 'text-warning': task.priority === 'medium','text-danger': task.priority === 'high'}"></i>
+                                <span class="badge badge-pill badge-gray mr-2"><i class="fas fa-calendar"></i> {{ task.programed }}</span>
+                                <span class="badge badge-pill badge-gray" *ngIf="task.status"><i class="fas fa-check"></i> {{ task.date | date }}</span>
+                                <div class="float-right" *ngIf="item.date >= date">
+                                    <i class="fa fa-toggle-on mr-2 pointer  text-invalid"></i>
+                                    <i class="fa fa-link  text-invalid mr-3"></i>
+                                </div>
+                                <i *ngIf="task.delayed" class="fa fa-circle ml-2 text-red" title="Delayed task"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-fixed-width-item" *ngIf="item.date >= date">
+                        <div class="task-checkbox pointer" [ngClass]="{'checked': task.status}">
+                            <i class="fas" [ngClass]="{'text-white fa-check': task.status, 'text-invalid fa-times': !task.status}"></i>
+                        </div>
+                    </div>
+                    <div class="flex-fixed-width-item" *ngIf="item.date < date">
+                        <div class="task-checkbox text-center" [ngClass]="{'checked': task.status, 'old': !task.status}">
+                            <i class="fas text-white" [ngClass]="{'fa-check': task.status, 'fa-times': !task.status}"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="task onsite" *ngFor="let task of item.onsite">
+                <div class="container-fluid d-flex px-0">
+                    <div class="col pl-0 padding-task">
+                        <div class="row task-container no-gutters">
+                            <div class="col-7">
+                                <span class="badge badge-pill badge-website text-white mr-2">{{ task.website.domain }}</span>
+                                <span class="badge badge-pill bg-other text-white mr-2 badge-list">Other</span>
+                                <span class="mr-3">{{ task.name }}</span>
+                            </div>
+                            <div class="col-5">
+                                <i class="far fa-flag mr-3" [ngClass]="{ 'text-warning': task.priority === 'medium','text-danger': task.priority === 'high'}"></i>
+                                <span class="badge badge-pill badge-gray mr-2"><i class="fas fa-calendar"></i> {{ task.programed }}</span>
+                                <span class="badge badge-pill badge-gray" *ngIf="task.status"><i class="fas fa-check"></i> {{ task.date | date }}</span>
+                                <i *ngIf="task.delayed" class="fa fa-circle ml-2 text-red" title="Delayed task"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-fixed-width-item" *ngIf="item.date >= date">
+                        <div class="task-checkbox pointer" [ngClass]="{'checked': task.status}">
+                            <i class="fas" [ngClass]="{'text-white fa-check': task.status, 'text-invalid fa-times': !task.status}"></i>
+                        </div>
+                    </div>
+                    <div class="flex-fixed-width-item" *ngIf="item.date < date">
+                        <div class="task-checkbox old text-center" [ngClass]="{'checked': task.status, 'old': !task.status}">
+                            <i class="fas text-white" [ngClass]="{'fa-check': task.status, 'fa-times': !task.status}"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="no-task" *ngIf="item.onsite && item.onsite.length == 0 && item.offsite && item.offsite.length == 0 && item.pages && item.pages.length == 0" cdkDrag cdkDragDisabled="true">
+            </div>
+          </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>

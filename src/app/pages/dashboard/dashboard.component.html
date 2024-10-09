@@ -1,0 +1,266 @@
+<button id="website-button" type="button" class="btn btn-circle btn-xl bg-upleadr-blue" [routerLink]="[ '/new-website']"><i class="fa fa-plus"></i> </button>
+<button id="filtered-websites" type="button" class="btn btn-circle btn-xl bg-upleadr-blue">{{ totalWebsites }}</button>
+<div class="row animated fadeIn" *ngIf="loading">
+    <div class="col-12 text-center">
+        <i class="fas fa-spinner fa-2x fa-spin"></i>
+    </div>
+</div>
+<div class="row animated fadeIn mb-2" *ngIf="!loading">
+    <div class="col-lg-3">
+        <select class="form-control">
+            <option value="0">All projects</option>
+            <option value="1">Projects with tasks in progress</option>
+            <option value="2">Projects without tasks in progress</option>
+        </select>
+    </div>
+    <div class="col-lg-3">
+        <button class="btn btn-block btn-primary" (click)="pingMonitorank()"><i class="fas" [ngClass]="loadingMonitorank ? 'fa-spinner fa-spin' : 'fa-search'"></i> Ping Monitorank</button>
+    </div>
+</div>
+<div class="row animated fadeIn" *ngIf="!loading">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="dashboard" class="table no-wrap v-middle">
+                        <thead>
+                            <tr class="border-0">
+                                <th id="th-01" class="border-0 text-center">
+                                    <select class="form-control" (change)="filterSelect($event)">
+                                        <option value="4">With priority</option>
+                                        <option value="0">Without priority</option>
+                                        <option value="1">Low priority</option>
+                                        <option value="2">Medium priority</option>
+                                        <option value="3">High priority</option>
+                                        <option value="5">All websites</option>
+                                    </select>
+                                </th>
+                                <th id="th-02" class="border-0 text-center">
+                                    <div class="custom-control custom-checkbox sold-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="sold-check" (click)="filterCheckbox( $event, 'sold' )">
+                                        <label class="custom-control-label" for="sold-check"></label>
+                                    </div>
+                                </th>
+                                <th id="th-03" class="border-0">
+                                    <div class="badge badge-gray pointer mr-1" (click)="sortByDomain()">
+                                        <i class="fas fa-sort" *ngIf="!sortedByDomain && !reverseByDomain"></i>
+                                        <i class="fas fa-sort-down" *ngIf="sortedByDomain && !reverseByDomain"></i>
+                                        <i class="fas fa-sort-up" *ngIf="reverseByDomain"></i>
+                                    </div>
+                                    <input #domain type="text" placeholder="Domain" class="form-control form-dashboard" (keyup)="searchBy( 'domain', domain.value, 'data' )">
+                                </th>
+                                <th id="th-04" class="border-0"></th>
+                                <th id="th-05" class="border-0">
+                                    <div class="badge badge-gray pointer mr-1" (click)="sortByKeyword()">
+                                        <i class="fas fa-sort" *ngIf="!sortedByKeyword && !reverseByKeyword"></i>
+                                        <i class="fas fa-sort-down" *ngIf="sortedByKeyword && !reverseByKeyword"></i>
+                                        <i class="fas fa-sort-up" *ngIf="reverseByKeyword"></i>
+                                    </div>
+                                    <input #keyword type="text" placeholder="Keyword" class="form-control form-dashboard" (keyup)="searchBy( 'keyword', keyword.value, 'keyword' )">
+                                </th>
+                                <th id="th-06" class="border-0">
+                                    <div class="badge badge-gray pointer mr-1" (click)="sortByPositions()">
+                                        <i class="fas fa-sort" *ngIf="!sortedByPosition && !reverseByPosition"></i>
+                                        <i class="fas fa-sort-down" *ngIf="sortedByPosition && !reverseByPosition"></i>
+                                        <i class="fas fa-sort-up" *ngIf="reverseByPosition"></i>
+                                    </div>
+                                    <small>Last<br>position</small>
+                                </th>
+                                <th id="th-07" class="border-0">
+                                    <span class="badge pointer mr-1" [ngClass]="oneDay == true ? 'badge-green' : 'badge-gray'" (click)="changeDays(1)">1</span>
+                                    <span class="badge pointer mr-1" [ngClass]="sevenDays== true ? 'badge-green' : 'badge-gray'" (click)="changeDays(7)">7</span>
+                                    <span class="badge pointer mr-1" [ngClass]="fifteenDays == true ? 'badge-green' : 'badge-gray'" (click)="changeDays(15)">15</span>
+                                    <br>
+                                    <span class="badge pointer mr-1" [ngClass]="thirtyDays == true ? 'badge-green' : 'badge-gray'" (click)="changeDays(30)">30</span>
+                                    <span class="badge pointer mr-1" [ngClass]="sixtyDays == true ? 'badge-green' : 'badge-gray'" (click)="changeDays(60)">60</span>
+                                </th>
+                                <th id="th-08" class="border-0" id="demand-th">
+                                    <div class="badge badge-gray pointer mr-1" (click)="sortByDemand()">
+                                        <i class="fas fa-sort" *ngIf="!sortedByDemand && !reverseByDemand"></i>
+                                        <i class="fas fa-sort-down" *ngIf="sortedByDemand && !reverseByDemand"></i>
+                                        <i class="fas fa-sort-up" *ngIf="reverseByDemand"></i>
+                                    </div>
+                                    <small>Demand</small>
+                                </th>
+                                <th id="th-09" class="border-0 text-center">
+                                    <span class="badge badge-pill bg-upleadr-blue text-white mb-1">Ranking<br>Monitoring</span>
+                                </th>
+                                <th id="th-14" class="border-0 text-center">
+                                    <div [attr.data-label]="totalContentPending" class="css-bar m-b-0 css-bar-danger css-bar-100 big-font">
+                                    </div>
+                                    <br>
+                                    <span class="badge badge-pill bg-content text-white mb-1">Website<br>Content</span>
+                                </th>
+                                <th id="th-10" class="border-0 text-center">
+                                    <div [attr.data-label]="totalOtherPending" class="css-bar m-b-0 css-bar-other css-bar-100 big-font">
+                                    </div>
+                                    <br>
+                                    <span class="badge badge-pill bg-other text-white mb-1">Other<br>Tasks</span>
+                                </th>
+                                <th id="th-11" class="border-0 text-center">
+                                    <div [attr.data-label]="totalBacklinksPending" class="css-bar m-b-0 css-bar-primary css-bar-100 big-font">
+                                    </div>
+                                    <br>
+                                    <span class="badge badge-pill bg-netlinking text-white mb-1">Offsite<br>Backlinks</span>
+                                </th>
+                                <th id="th-12" class="border-0 text-center">
+                                    <span class="badge badge-pill bg-on-page text-white mb-1">On-Page<br>Optimizations</span>
+                                </th>
+                                <th id="th-13" class="border-0 text-center">
+                                    <span class="badge badge-pill bg-technical text-white mb-1">Technical Tasks<br>On-Domain</span>
+                                </th>
+                                <th id="th-15" class="border-0">
+                                    <div class="badge badge-gray pointer mr-1" (click)="sortByCity()">
+                                        <i class="fas fa-sort" *ngIf="!sortedByCity && !reverseByCity"></i>
+                                        <i class="fas fa-sort-down" *ngIf="sortedByCity && !reverseByCity"></i>
+                                        <i class="fas fa-sort-up" *ngIf="reverseByCity"></i>
+                                    </div>
+                                    <input #city type="text" placeholder="City" class="form-control form-dashboard" (keyup)="searchBy( 'name', city.value, 'city' )">
+                                </th>
+                                <th id="th-17" class="border-0">
+                                    <div class="badge badge-gray pointer mr-1" (click)="sortByType()">
+                                        <i class="fas fa-sort" *ngIf="!sortedByType && !reverseByType"></i>
+                                        <i class="fas fa-sort-down" *ngIf="sortedByType && !reverseByType"></i>
+                                        <i class="fas fa-sort-up" *ngIf="reverseByType"></i>
+                                    </div>
+                                    <input #type type="text" placeholder="Type" class="form-control form-dashboard" (keyup)="searchBy( 'type', type.value, 'data', 'name' )">
+                                </th>
+                                <th id="th-18" class="border-0">
+                                    <div class="badge badge-gray pointer mr-1" (click)="sortByCategory()">
+                                        <i class="fas fa-sort" *ngIf="!sortedByCategory && !reverseByCategory"></i>
+                                        <i class="fas fa-sort-down" *ngIf="sortedByCategory && !reverseByCategory"></i>
+                                        <i class="fas fa-sort-up" *ngIf="reverseByCategory"></i>
+                                    </div>
+                                    <input #category type="text" placeholder="Category" class="form-control form-dashboard" (keyup)="searchBy( 'category', category.value, 'data', 'name' )">
+                                </th>
+                                <th id="th-19" class="border-0"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let website of websites">
+                                <td id="td-01" class="td-icon text-center pointer" (click)="changePriority(website.data)">
+                                    <i *ngIf="website.data.priority == 0" class="fa fa-circle text-muted"></i>
+                                    <i *ngIf="website.data.priority == 1" class="fa fa-circle text-info"></i>
+                                    <i *ngIf="website.data.priority == 2" class="fa fa-circle text-warning"></i>
+                                    <i *ngIf="website.data.priority == 3" class="fa fa-circle text-danger"></i>
+                                </td>
+                                <td id="td-02" class="td-icon text-center">
+                                    <i *ngIf="website.data.sold" class="fa fa-dollar-sign text-success"></i>
+                                </td>
+                                <td id="td-03">
+                                    <small>
+                                        <a href="https://{{ website.data.domain }}" target="_blank" class="mr-2">
+                                            <i class="fas fa-external-link-square-alt"></i>
+                                        </a>
+                                        <a href="https://app.seobserver.com/sites/view/{{ website.data.domain }}" target="_blank" class="mr-2">
+                                            <img src="assets/images/seobserver.ico" width="12">
+                                        </a>
+                                    </small> <b>{{ website.data.domain }}</b>
+                                </td>
+                                <td id="td-04" class="td-icon text-center">
+                                    <i class="fa fa-info" *ngIf="website.data.comment && website.data.comment.length > 0" data-container="body" title="Comment" data-toggle="popover" data-placement="top" [attr.data-content]="website.data.comment"></i>
+                                </td>
+                                <td id="td-05">
+                                    <small *ngIf="website.keyword.keyword">
+                                        <a href="https://www.google.fr/search?q={{  website.keyword.url }}" target="_blank" class="mr-1">
+                                            <img src="assets/images/google.png" width="12">
+                                        </a>
+                                        <a href="https://app.seobserver.com/serpmachine/fr_fr/{{ website.keyword.keyword | keywordURL }}/now" target="_blank" class="mr-2">
+                                            <img src="assets/images/seobserver.ico" width="12">
+                                        </a>
+                                        {{ website.keyword.keyword }}
+                                    </small>
+                                </td>
+                                <td id="td-06">
+                                    <small *ngIf="website.keyword.chartThree && website.keyword.chartThree.data.length > 0">{{ website.keyword.chartThree.data[5] }}</small>
+                                </td>
+                                <td id="td-07">
+                                    <span *ngIf="oneDay && website.keyword.chartTwo && website.keyword.chartTwo.data.length > 0">
+                                        <small *ngIf="website.keyword.chartTwo.data[4] != null && website.keyword.chartTwo.data[5] != null && website.keyword.chartTwo.data[4] - website.keyword.chartTwo.data[5] != 0">
+                                            <i *ngIf="website.keyword.chartTwo.data[4] - website.keyword.chartTwo.data[5] < 0" class="fas fa-arrow-down text-red"></i>
+                                            <i *ngIf="website.keyword.chartTwo.data[4] - website.keyword.chartTwo.data[5] > 0"class="fas fa-arrow-up text-green"></i>
+                                            {{ website.keyword.chartTwo.data[4] - website.keyword.chartTwo.data[5] | numberSign }}
+                                        </small>
+                                    </span>
+                                    <span *ngIf="sevenDays && website.keyword.chartTwo && website.keyword.chartTwo.data.length > 0">
+                                        <small *ngIf="website.keyword.chartTwo.data[0] != null && website.keyword.chartTwo.data[5] != null && website.keyword.chartTwo.data[0] - website.keyword.chartTwo.data[5] != 0">
+                                            <i *ngIf="website.keyword.chartTwo.data[0] - website.keyword.chartTwo.data[5] < 0" class="fas fa-arrow-down text-red"></i>
+                                            <i *ngIf="website.keyword.chartTwo.data[0] - website.keyword.chartTwo.data[5] > 0"class="fas fa-arrow-up text-green"></i>
+                                            {{ website.keyword.chartTwo.data[0] - website.keyword.chartTwo.data[5] | numberSign }}
+                                        </small>
+                                    </span>
+                                    <span *ngIf="fifteenDays && website.keyword.chartThree && website.keyword.chartThree.data.length > 0">
+                                        <small *ngIf="website.keyword.chartThree.data[0] != null && website.keyword.chartThree.data[5] != null && website.keyword.chartThree.data[0] - website.keyword.chartThree.data[5] != 0">
+                                            <i *ngIf="website.keyword.chartThree.data[0] - website.keyword.chartThree.data[5] < 0" class="fas fa-arrow-down text-red"></i>
+                                            <i *ngIf="website.keyword.chartThree.data[0] - website.keyword.chartThree.data[5] > 0"class="fas fa-arrow-up text-green"></i>
+                                            {{ website.keyword.chartThree.data[0] - website.keyword.chartThree.data[5] | numberSign }}
+                                        </small>
+                                    </span>
+                                    <span *ngIf="thirtyDays && website.keyword.chartFour && website.keyword.chartFour.data.length > 0">
+                                        <small *ngIf="website.keyword.chartFour.data[0] != null && website.keyword.chartFour.data[5] != null && website.keyword.chartFour.data[0] - website.keyword.chartFour.data[5] != 0">
+                                            <i *ngIf="website.keyword.chartFour.data[0] - website.keyword.chartFour.data[5] < 0" class="fas fa-arrow-down text-red"></i>
+                                            <i *ngIf="website.keyword.chartFour.data[0] - website.keyword.chartFour.data[5] > 0"class="fas fa-arrow-up text-green"></i>
+                                            {{ website.keyword.chartFour.data[0] - website.keyword.chartFour.data[5] | numberSign }}
+                                        </small>
+                                    </span>
+                                    <span *ngIf="sixtyDays && website.keyword.chartFive && website.keyword.chartFive.data.length > 0">
+                                        <small *ngIf="website.keyword.chartFive.data[0] != null && website.keyword.chartFive.data[5] != null && website.keyword.chartFive.data[0] - website.keyword.chartFive.data[5] != 0">
+                                            <i *ngIf="website.keyword.chartFive.data[0] - website.keyword.chartFive.data[5] < 0" class="fas fa-arrow-down text-red"></i>
+                                            <i *ngIf="website.keyword.chartFive.data[0] - website.keyword.chartFive.data[5] > 0"class="fas fa-arrow-up text-green"></i>
+                                            {{ website.keyword.chartFive.data[0] - website.keyword.chartFive.data[5] | numberSign }}
+                                        </small>
+                                    </span>
+                                </td>
+                                <td id="td-08">
+                                    <small *ngIf="website.keyword.demand">{{ website.keyword.demand }}</small>
+                                </td>
+                                <td id="td-09">
+                                    <canvas *ngIf="oneDay || sevenDays || fifteenDays" id="chart-15-{{website.data._id}}" class="chart-keywords pointer" (click)="onClick($event, 'tracking', website.data._id)"></canvas>
+                                    <canvas *ngIf="thirtyDays" id="chart-30-{{website.data._id}}" class="chart-keywords pointer" (click)="onClick($event, 'tracking', website.data._id)"></canvas>
+                                    <canvas *ngIf="sixtyDays" id="chart-60-{{website.data._id}}" class="chart-keywords pointer" (click)="onClick($event, 'tracking', website.data._id)"></canvas>
+                                </td>
+                                <td id="td-14" class="td-progress text-center">
+                                    <span class="pointer" (click)="onClick($event, 'strategy', website.data._id)">
+                                        <div [attr.data-label]="website.progress.pendingContent" class="css-bar big-font m-b-0 css-bar-danger css-bar-{{ website.semantic.chart}}">
+                                        </div>
+                                    </span>
+                                </td>
+                                <td id="td-10" class="td-progress text-center">
+                                    <span *ngIf="website.onsite" class="pointer" (click)="onClick($event, 'strategy', website.data._id)">
+                                        <div [attr.data-label]="website.progress.pendingOther" class="css-bar big-font m-b-0 css-bar-other css-bar-{{ website.onsite.chart}}">
+                                        </div>
+                                    </span>
+                                </td>
+                                <td id="td-11" class="td-progress text-center">
+                                    <div class="pointer" (click)="onClick($event, 'strategy', website.data._id)">
+                                        <div [attr.data-label]="website.progress.pendingBacklink" class="css-bar big-font css-bar-primary m-b-0 css-bar-{{ website.backLinks.chart}}">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td id="td-12" class="td-progress text-center">
+                                    <div class="pointer" *ngIf="website.semantic && website.semantic.percent !== undefined; else loader" (click)="onClick($event, 'strategy', website.data._id)">
+                                        <div [attr.data-label]="website.semantic.done + '/' + website.semantic.total" class="css-bar m-b-0 css-bar-orange css-bar-{{ website.semantic.chart}}">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td id="td-13" class="td-progress text-center">
+                                    <div class="pointer" *ngIf="website.technical.percent !== undefined; else loader" (click)="onClick($event, 'technical', website.data._id)">
+                                        <div [attr.data-label]="website.technical.done + '/' + website.technical.total" class="css-bar m-b-0 css-bar-warning css-bar-{{ website.technical.chart}}">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td id="td-15"><span *ngIf="website.city;">{{ website.city.name }}</span></td>
+                                <td id="td-17">{{ website.data.type.name }}</td>
+                                <td id="td-18">{{ website.data.category.name }}</td>
+                                <td id="td-19">
+                                    <i *ngIf="_userService.user._id === website.data.creator._id" class="fa fa-cog pointer" [routerLink]="[ '/website/' + website.data._id]"></i>
+                                    <i *ngIf="_userService.user._id !== website.data.creator._id && website.data.info" class="fa fa-plug" data-html="true" data-container="body" title="Connection info" data-toggle="popover" data-placement="left" [attr.data-content]="website.data.info"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

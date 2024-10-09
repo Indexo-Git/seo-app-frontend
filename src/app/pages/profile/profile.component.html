@@ -1,0 +1,39 @@
+<div class="row animated fadeIn">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Profile management</h4>
+                <h6 class="card-subtitle"> Keep your info updated </h6>
+                <form ngNativeValidate class="m-t-30" [formGroup]="form" (ngSubmit)="save()">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Username</label>
+                        <input type="text" class="form-control" id="name" formControlName="name" placeholder="Enter name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" formControlName="email" placeholder="Enter email">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Profile photo</h4>
+                <h6 class="card-subtitle"> Update image profile </h6>
+                <img *ngIf="!imgTmp" [src]="user.img | image" class="w-50">
+                <img *ngIf="imgTmp" [src]="user.img | image" class="w-50">
+                <form class="m-t-30">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Photo</label>
+                        <input type="file" (change)="selectImage( $event.target.files[0] )" class="form-control" id="image">
+                    </div>
+                    <button (click)="changeImage()" [disabled]="!uploadImage" type="submit" class="btn btn-primary ">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

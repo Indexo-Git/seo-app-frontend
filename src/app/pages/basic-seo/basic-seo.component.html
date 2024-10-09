@@ -1,0 +1,254 @@
+<app-menu *ngIf="website" [website]='website' [updateContent]="updateMenu.asObservable()" [updateOnPage]="updateMenu.asObservable()"></app-menu>
+<div class="row animated fadeIn" *ngIf="loading">
+    <div class="col-12 text-center">
+        <i class="fas fa-spinner fa-2x fa-spin"></i>
+    </div>
+</div>
+<div class="row animated fadeIn" *ngIf="!loading">
+    <div class="col-12">
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-info btn-circle btn-lg float-right" data-toggle="modal" data-target="#bulk-page-modal"><i class="fa fa-upload"></i> </button>
+                <button type="button" class="btn bg-upleadr-blue btn-circle btn-lg float-right mr-2" data-toggle="modal" data-target="#new-page-modal"><i class="fa fa-plus"></i> </button>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-lg-12">
+                <div *ngIf="pages && pages.length > 0" cdkDropList class="drag-list animated fadeIn" (cdkDropListDropped)="dropPage(pages, $event)">
+                    <div class="task pages" *ngFor="let page of pages" cdkDrag>
+                        <div class="container-fluid d-flex px-0">
+                            <div class="col pl-0 padding-task">
+                                <div class="row task-container no-gutters">
+                                    <div class="col-8">
+                                        <i class="fas fa-bars text-muted mr-2"></i>
+                                        <span class="badge badge-pill text-white bg-content mr-2 badge-list">Content</span>
+                                        <span class="mr-1">{{ page.page.name }}</span>
+                                        <small class="mr-1" *ngIf="page.page.name.includes('https://') || page.page.name.includes('https://')"><a href="{{ page.page.name }}" target="_blank"><i class="fas fa-external-link-square-alt"></i></a></small>
+                                        <small class="ti-pencil mr-1 pointer text-invalid" (click)="setPageForm(page.page)" data-toggle="modal" data-target="#edit-page-modal"></small>
+                                        <small class="ti-close mr-2 pointer text-invalid" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this page!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deletePage(page.page)"></small>
+                                        <span class="pointer label mr-2" [ngClass]="{'label-gray': page.page.keywords === null || page.page.keywords === '', 'label-info' : page.page.keywords !== null && page.page.keywords !== '' , 'pointer' : page.page.keywords !== null && page.page.keywords !== ''} "
+                                            data-container="body" title="Keywords" data-toggle="popover" data-html="true" data-placement="top" [attr.data-content]="page.page.keywords | line">KW</span>
+                                    </div>
+                                    <div class="col-4">
+                                        <span class="badge badge-pill badge-gray mr-2 neg-margin-left" *ngIf="page.page.programed">
+                                            <i class="fas fa-calendar"></i> {{ page.page.programed }}
+                                        </span>
+                                        <span class="badge badge-pill badge-gray mr-2" *ngIf="page.page.online" [ngClass]="{ 'neg-margin-left' : !page.page.programed }">
+                                            <i class="fas fa-check"></i> {{ page.page.dateOnline | date }}
+                                        </span>
+                                        <div class="float-right">
+                                            <div class="d-inline">
+                                                <i class="fa fa-align-left mr-2 pointer" [ngClass]="{'text-success': page.page.created, 'text-invalid' : !page.page.created}" data-toggle="modal" data-target="#editor-modal" (click)="getText( page.page._id, page.page.content )"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-fixed-width-item">
+                                <div class="task-checkbox pointer" [ngClass]="{'checked': page.page.online}" (click)="statusPageOnline(page.page)">
+                                    <i class="fas" [ngClass]="{'text-white fa-check': page.page.online, 'text-invalid fa-times': !page.page.online}"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="page.daughters.length > 0" class="drag-list drag-list-child" cdkDropList (cdkDropListDropped)="dropPage(page.daughters, $event)">
+                            <div class="task pages" *ngFor="let daughter of page.daughters" cdkDrag>
+                                <div class="container-fluid d-flex px-0">
+                                    <div class="col pl-0 padding-task">
+                                        <div class="row task-container no-gutters">
+                                            <div class="col-8">
+                                                <i class="fas fa-bars text-muted mr-2"></i>
+                                                <span class="badge badge-pill bg-content text-white mr-2 badge-list">Content</span>
+                                                <span class="mr-1">{{ daughter.name }}</span>
+                                                <small class="mr-1" *ngIf="daughter.name.includes('https://') || daughter.name.includes('https://')"><a href="{{ daughter.name }}" target="_blank"><i class="fas fa-external-link-square-alt"></i></a></small>
+                                                <small class="ti-pencil mr-1 pointer text-invalid" (click)="setPageForm(daughter)" data-toggle="modal" data-target="#edit-page-modal"></small>
+                                                <small class="ti-close mr-2 pointer text-invalid" [swal]="{ title: 'Are you sure?', text: 'You won\'t be able to recover this page!', type: 'warning', showCancelButton: true, focusCancel: true }" (confirm)="deletePage(daughter)"></small>
+                                                <span class="pointer label mr-2" [ngClass]="{'label-gray': daughter.keywords === null || daughter.keywords === '', 'label-info' : daughter.keywords !== null && daughter.keywords !== '' , 'pointer' : daughter.keywords !== null && daughter.keywords !== ''} "
+                                                    data-container="body" title="Keywords" data-toggle="popover" data-html="true" data-placement="top" [attr.data-content]="daughter.keywords | line">KW</span>
+                                            </div>
+                                            <div class="col-4">
+                                                <span class="badge badge-pill badge-gray mr-2 neg-margin-left" *ngIf="daughter.programed">
+                                                    <i class="fas fa-calendar"></i> {{ daughter.programed }}
+                                                </span>
+                                                <span class="badge badge-pill badge-gray mr-2" *ngIf="daughter.online" [ngClass]="{ 'big-neg-margin-left' : !daughter.programed }">
+                                                    <i class="fas fa-check"></i> {{ daughter.dateOnline | date }}
+                                                </span>
+                                                <div class="float-right">
+                                                    <div class="d-inline">
+                                                        <i class="fa fa-align-left mr-2 pointer" [ngClass]="{'text-success': daughter.created, 'text-invalid' : !daughter.created}" data-toggle="modal" data-target="#editor-modal" (click)="getText( daughter._id, daughter.content )"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-fixed-width-item">
+                                        <div class="task-checkbox pointer" [ngClass]="{'checked': daughter.online}" (click)="statusPageOnline(daughter)">
+                                            <i class="fas" [ngClass]="{'text-white fa-check': daughter.online, 'text-invalid fa-times': !daughter.online}"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="new-page-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form [formGroup]="pageForm" (ngSubmit)="newPage()">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add new website</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="recipient-name" class="control-label">Name</label>
+                                <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': pageForm.controls['name'].touched && !pageForm.get( 'name').valid , 'is-valid': pageForm.controls['name'].touched && pageForm.get( 'name').valid } ">
+                                <ng-container *ngIf="pageForm.controls['name'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="pageForm.get('name').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!pageForm.get('name').valid">
+                                        <span *ngIf="pageForm.controls['name'].errors?.required">This field is required</span>
+                                        <span *ngIf="pageForm.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                            <div class="form-group">
+                                <label for="mother" class="control-label">Mother page</label>
+                                <select formControlName="mother" class="form-control">
+                                    <option value="null">Select mother</option>
+                                    <option *ngFor="let page of rawPages" value="{{ page._id }}">{{ page.name }}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="keywords" class="control-label">Keywords</label>
+                                <textarea class="form-control" formControlName="keywords" [ngClass]="{ 'is-invalid': pageForm.controls['keywords'].touched && !pageForm.get( 'keywords').valid , 'is-valid': pageForm.controls['keywords'].touched && pageForm.get( 'keywords').valid } "></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="submit" [disabled]="pageForm.touched && !pageForm.valid">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="editor-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Editor modal</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <ckeditor id="editor" [editor]="Editor" [(ngModel)]="editorData" (change)="onTextChange($event)" [config]="{ toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedlist', 'numberedlist', 'blockquote','|', 'undo', 'redo' ] }"></ckeditor>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect mr-3" data-dismiss="modal">Close</button>
+                <button type="button" class="btn bg-upleadr-blue waves-effect" (click)="updateContent()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="edit-page-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form [formGroup]="pageForm" (ngSubmit)="updatePage()">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit page</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="recipient-name" class="control-label">Name</label>
+                                <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': pageForm.controls['name'].touched && !pageForm.get( 'name').valid , 'is-valid': pageForm.controls['name'].touched && pageForm.get( 'name').valid } ">
+                                <ng-container *ngIf="pageForm.controls['name'].touched">
+                                    <div class="valid-feedback animated fadeIn" *ngIf="pageForm.get('name').valid">
+                                        <span>Looks good</span>
+                                    </div>
+                                    <div class="invalid-feedback animated fadeIn" *ngIf="!pageForm.get('name').valid">
+                                        <span *ngIf="pageForm.controls['name'].errors?.required">This field is required</span>
+                                        <span *ngIf="pageForm.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                                    </div>
+                                </ng-container>
+                            </div>
+                            <div class="form-group">
+                                <label for="mother" class="control-label">Mother page</label>
+                                <select formControlName="mother" class="form-control">
+                                    <option value="null">Select mother</option>
+                                    <option *ngFor="let p of pagesForm" value="{{ p._id }}" [selected]="p._id === page.mother">{{ p.name }}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="keywords" class="control-label">Keywords</label>
+                                <textarea class="form-control" formControlName="keywords" [ngClass]="{ 'is-invalid': pageForm.controls['keywords'].touched && !pageForm.get( 'keywords').valid , 'is-valid': pageForm.controls['keywords'].touched && pageForm.get( 'keywords').valid } "></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="submit" [disabled]="pageForm.touched && !pageForm.valid">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- /.modal -->
+<div id="bulk-page-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Bulk pages</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="radio-xml" name="radio-bulk" checked>
+                                <label class="custom-control-label" for="radio-xml">XML Format</label>
+                            </div>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="radio-text" name="radio-bulk">
+                                <label class="custom-control-label" for="radio-text">Text Format</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="bulk-pages" class="control-label">Content</label>
+                            <textarea id="bulk-pages" class="form-control" rows="20"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="button" (click)="bulkPages()">Bulk</button>
+            </div>
+        </div>
+    </div>
+</div>

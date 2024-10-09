@@ -1,0 +1,44 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <form [formGroup]="form" (ngSubmit)="newPage()">
+            <div class="modal-header">
+                <h4 class="modal-title">Add new website</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">Name</label>
+                            <input type="text" class="form-control" placeholder="Name" autocomplete="off" formControlName="name" [ngClass]="{ 'is-invalid': form.controls['name'].touched && !form.get( 'name').valid , 'is-valid': form.controls['name'].touched && form.get( 'name').valid } ">
+                            <ng-container *ngIf="form.controls['name'].touched">
+                                <div class="valid-feedback animated fadeIn" *ngIf="form.get('name').valid">
+                                    <span>Looks good</span>
+                                </div>
+                                <div class="invalid-feedback animated fadeIn" *ngIf="!form.get('name').valid">
+                                    <span *ngIf="form.controls['name'].errors?.required">This field is required</span>
+                                    <span *ngIf="form.controls['name'].errors?.minlength">Your name must has at least 2 characters </span>
+                                </div>
+                            </ng-container>
+                        </div>
+                        <div class="form-group">
+                            <label for="mother" class="control-label">Mother page</label>
+                            <select id="mother" formControlName="mother" class="form-control">
+                                <option value="null">Select mother</option>
+                                <option *ngFor="let page of pages" value="{{ page._id }}">{{ page.name }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="keywords" class="control-label">Keywords</label>
+                            <textarea id="keywords" class="form-control" formControlName="keywords" [ngClass]="{ 'is-invalid': form.controls['keywords'].touched && !form.get( 'keywords').valid , 'is-valid': form.controls['keywords'].touched && form.get( 'keywords').valid } "></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                <button type="button" class="btn bg-upleadr-blue waves-effect waves-light" type="submit" [disabled]="form.touched && !form.valid">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>

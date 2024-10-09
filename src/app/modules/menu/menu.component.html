@@ -1,0 +1,40 @@
+<div class="row">
+    <div class="col">
+        <h2 *ngIf="website">{{ website.domain }}
+            <i *ngIf="user._id === website.creator._id" class="fa fa-cog pointer text-muted fa-xs m-2" [routerLink]="[ '/website/' + website._id]"></i>
+            <i *ngIf="user._id === website.creator._id" class="fa fa-dollar-sign pointer text-muted fa-xs m-2" [routerLink]="[ '/costs/' + website._id]"></i>
+            <i *ngIf="user._id !== website.creator._id && website.info" class="fa fa-plug pointer text-muted fa-xs m-2" data-html="true" data-container="body" title="Connection info" data-toggle="popover" data-placement="bottom" [attr.data-content]="website.info"></i>
+        </h2>
+    </div>
+    <div class="col">
+        <nav class="breadcrumb float-right" *ngIf="website">
+            <a class="breadcrumb-item" [routerLink]="[ '/strategy/' + website._id]">
+                <span [ngClass]="{'badge badge-pill badge-menu bg-upleadr-blue text-white' : subMenuActive === 'strategy'}">Monthly SEO Strategies</span>
+            </a>
+            <a class="breadcrumb-item" [routerLink]="[ '/tracking/' + website._id]">
+                <span [ngClass]="{'badge badge-pill badge-menu bg-upleadr-blue text-white' : subMenuActive === 'tracking'}">Ranking and Monitoring</span>
+            </a>
+        </nav>
+    </div>
+</div>
+<div class="row fadeIn mb-3">
+    <div class=col-lg-12>
+        <div class="row">
+            <div class="col pointer" routerLinkActive="active" [routerLink]="[ '/basic-seo/' + website._id]">
+                <app-progress title='Website content' [percent]='percentPages' [done]='totalPagesDone' [total]='totalPages' class="bg-content" whiteTitle="true" darkProgress="true"></app-progress>
+            </div>
+            <div class="col pointer" routerLinkActive="active" [routerLink]="[ '/on-page/' + website._id]">
+                <app-progress title='On-Page Optimizations' [percent]='percentSemantic' [done]='totalSemanticTasksDone' [total]='totalSemanticTasks' class="bg-on-page" whiteTitle="true" darkProgress="true"></app-progress>
+            </div>
+            <div class="col pointer" routerLinkActive="active" [routerLink]="[ '/technical/' + website._id]">
+                <app-progress title='Technical Tasks On-Domain' [percent]='percentTechnical' [done]='totalTechnicalTasksDone' [total]='totalTechnicalTasks' class="bg-technical" whiteTitle="true" darkProgress="true"></app-progress>
+            </div>
+            <div class="col pointer" routerLinkActive="active" [routerLink]="[ '/netlinking/' + website._id]">
+                <app-progress title='Offsite Backlinks' [percent]='percentOffsite' [done]='totalOffsiteDone' [total]='totalOffsite' class="bg-netlinking" whiteTitle="true" darkProgress="true"></app-progress>
+            </div>
+            <div class="col pointer" routerLinkActive="active" [routerLink]="[ '/other/' + website._id]">
+                <app-progress title='Other Tasks' [percent]='percentOnsite' [done]='totalOnsiteDone' [total]='totalOnsite' class="bg-other" whiteTitle="true" darkProgress="true"></app-progress>
+            </div>
+        </div>
+    </div>
+</div>
